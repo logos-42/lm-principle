@@ -130,3 +130,26 @@ schema_version: 2
 - 编译坑记录: λ 是 Lean 关键字不能做标识符; mc·(m+1) 的 Nat cast
   陷阱 (↑(m+1) vs ↑m+1); conv_lhs 限定重写范围
 - 已推送
+
+## [2026-08-12] 会话 | Training.lean: RLHF/DPO/稀疏化/预训练后训练 (10 定理)
+
+- 用户指出缺失: RL (强化学习), MoE 深入, 稀疏注意力, 预训练/后训练推演
+- 新增 `LmPrinciple/Training.lean`（10 定理, 总定理数 60 → **70**）:
+  - 预训练: scaling_law_strict_anti (L=c/(N+1)^α 幂律递减, 与 C4 同构)
+    + pretraining_loss_lower_bound (CE ≥ 数据熵 = 预训练损失下界)
+  - 后训练 RLHF: rlhfPolicy (softmax 策略定义) + rlhf_policy_is_distribution
+    (配分函数归一, Σ=1) + posttraining_kl_nonneg (KL 漂移 ≥ 0, Gibbs)
+    + rlhf_kl_penalty_structure (J(π)=奖励-β·KL 的目标结构)
+  - DPO: dpo_loss_nonneg (-log σ(β·Δ) ≥ 0, log_nonpos_iff)
+  - 稀疏化: sparse_moe_preserves_bound (top-k 重归一保持凸组合 ⟹ 误差界)
+    + sparse_attention_preserves_bound (掩码重归一同构复用)
+    + sparse_attention_interactions (n·k < n², 复用 Efficiency)
+  - 统一: training_unified (预训练+后训练+稀疏化 = 变分自由能最小化)
+- 核心洞见: **RLHF 最优策略 = softmax (Gibbs 推论)**——J(π) = β·log Z -
+  β·KL(π‖π*), 偏离最优策略的代价 = KL ≥ 0; 完整最优性证明链
+  (r 反解 + exp-log 互逆) 已注释, 核心不等式已验证
+- 编译坑: λ 关键字; r* 非法标识符 (* 是乘法); Finset.sum_mul/mul_sum 是
+  protected lemma 需显式传参; sum_filter 参数序 (s)(f)(p); 1/x 与 x⁻¹
+  不定义相等 (需 simpa); ite_mul 不是 mul_ite; Real.log_nonpos 不存在
+  (用 log_nonpos_iff)
+- 已推送

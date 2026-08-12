@@ -55,7 +55,7 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 - ✅ **LmPrinciple/Murray.lean §3-4 + Fractal.lean (2026-08-12, +6 定理)**: 三项成本完整变分证明
   （murray_variational_optimal 全局最小, 纯代数）+ 流量守恒 + C1 完整链 +
   C3 连接密度凸性 + C4 幂律收益 ⟹ 最优深度存在
-- ✅ **总计: 60 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **总计: 70 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
