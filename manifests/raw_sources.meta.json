@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "columns": [
+    "source_id",
+    "company",
+    "vendor",
+    "kind",
+    "filename",
+    "raw_rel_path",
+    "status",
+    "compiled_into",
+    "notes"
+  ],
+  "allowed_status": ["new", "compiled", "archived"]
+}
