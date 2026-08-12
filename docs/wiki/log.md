@@ -27,3 +27,9 @@ schema_version: 2
 - 待办: 主定理 2.1 信息论证明（等用户假设）
 - 阅读 LMT-twister 仓库: AGENTS.md wiki-first 约定、current-status.md、
   论文 head-en.tex / head-zh.tex（附录 A 引理 A.1-A.4）
+
+## [2026-08-12] 会话 | 流程方法沉淀
+
+- current-status.md 新增两节: 「环境搭建流程（可复现）」（全离线物化 5 步 +
+  脚本索引）、「形式化工作流」（statement→编译迭代→验证→writeback）
+- 坑清单扩充: import-graph 连字符、∑ 记法弃用、elan shim 假失败

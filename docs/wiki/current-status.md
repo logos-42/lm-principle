@@ -44,6 +44,45 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 - ⏳ **按需 olean 优化**: 并行会话验证过 `lake exe cache get <Module>` 可按需拉
   63 个 olean（870M），可替代全量源码编译（下次换环境时优先尝试）
 
+## 环境搭建流程（2026-08-12 沉淀 · 可复现）
+
+**问题链**: github.com 对 lake/elan 的进程内 libcurl 不可达（schannel 吊销检查
+CRYPT_E_REVOCATION_OFFLINE + 间歇 TCP 阻断）→ 一切 lake 网络操作（Reservoir 解析、
+cache 下载、tag 解析）全部失败。解法 = **全离线物化**：
+
+1. **工具链**: `lean-toolchain` 固定 `leanprover/lean4:v4.21.0`（elan 已装）
+2. **mathlib**: SSH 克隆到 `.lake/packages/mathlib`，checkout **原始 v4.21.0 提交
+   308445d**（2025-06-30）。⚠️ 该 tag 后来被移动过：tag 上的 lake-manifest.json
+   pin 的 8 个依赖是 4.34 时代 rev（与 lean 4.21 不兼容）——必须用
+   `git log --lean-toolchain` 找到原始提交，取其**自己的** manifest 里的 dep rev
+3. **8 个依赖**（batteries/Qq/aesop/proofwidgets/importGraph/LeanSearchClient/
+   plausible/Cli）: SSH 克隆 + checkout mathlib@308445d manifest 里的精确 rev
+   （全 4.21 时代，lean-toolchain 均 = v4.21.0）
+4. **lakefile.toml**: mathlib + 8 依赖全部 `path` require → 解析完全离线，
+   不需要 manifest / 网络 / Reservoir
+5. **构建**: 用**真实 lake 二进制**（elan shim 启动即解析默认工具链 v4.33.0 未装
+   → 尝试下载 → 假失败）: `~/.elan/toolchains/leanprover--lean4---v4.21.0/bin/lake.exe
+   build`；前置 `MATHLIB_NO_CACHE_ON_UPDATE=1`（mathlib 的 post_update 钩子会拉缓存）
+
+**脚本索引**（全部在 `scripts/`，Windows 专用）:
+`setup_mathlib.sh`(环境总装) / `clone_deps.sh`(SSH 克隆依赖) /
+`pin_v421.sh`(固定 308445d + 8 依赖 rev) / `run_build.sh`(真实 lake 构建) /
+`deepen_mathlib.sh`(找原始提交)
+
+## 形式化工作流（定理 → 机器验证）
+
+1. **先写 statement 再写 proof**: 每个定理先有"第一性原理"叙述（文件头 docstring），
+   证明是后验的
+2. **最小 import 集**: 先跑 `LmPrinciple/Smoke.lean`（`#check` 全部要用的引理）
+   编译闭包一次，正式文件增量编译快；引理名不确定 → 本地 grep
+   `.lake/packages/mathlib/Mathlib/` 确认（2025 版 mathlib 的 API 与最新版差异大，
+   `coeff_mul`/`not_injective_of_card_lt`/`geom_sum_eq` 等都不存在）
+3. **编译迭代**: `lake build` 报错 → 按错误逐点修（典型: 引理不存在换路径、
+   `omega` 需 `Finset.mem_range.mp` 喂范围事实、`rw` 不深入 binder 用
+   `Finset.sum_congr`/`congrArg` 降级到点等式、不等式引理不能 `rw` 用 `exact`）
+4. **验证标准**: `lake build` 全绿 + 扫描无 `sorry/admit/axiom` + 定理计数核对
+5. **wiki writeback**: 结果/坑/方法写回 current-status + log，`wiki_lint --strict=v2` 通过
+
 ## 环境坑（本机 Windows）
 
 - curl schannel 吊销检查失败（CRYPT_E_REVOCATION_OFFLINE）：lake 进程内 libcurl
@@ -54,6 +93,10 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   `scripts/setup_mathlib.sh` 是 Windows 专用
 - Lean 4.21 core 只有 omega；linarith/nlinarith/ring/field_simp 需
   `import Mathlib.Tactic.{Linarith, Ring, FieldSimp}`
+- importGraph 仓库名带连字符 `import-graph`（≠ importGraph），克隆前先查 manifest
+- `∑ x in s, f x` 记法已弃用（编译 warning）→ 用 `∑ x ∈ s, f x`
+- elan shim（~/.elan/bin/lake.exe）默认工具链解析到 v4.33.0（未装）→ 假失败，
+  一律用 `scripts/run_build.sh`（真实二进制）
 
 ## 相关文档
 
