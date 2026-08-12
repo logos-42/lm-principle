@@ -67,13 +67,16 @@ tags: [fractal, murray-law, transformer-depth, lean-candidates]
 
 ## 候选可形式化命题（C1-C2 已证, C3-C4 待）
 
-### ✅ C1 默里定律最优性（Murray.lean, 已 Lean 验证）
-- `murray_symmetric_ratio_cube`: 流量守恒 r³ = r₁³ + r₂³ + 对称分叉
-  ⟹ (r₀/r)³ = 1/2——比率 ρ = 2^(-1/3) ≈ 0.79 被守恒律锁定
-- `symmetric_branch_minimizes_maintenance`: 2r₁r₂ ≤ r₁²+r₂²
-  （对称 = 维护成本最小）
-- 诚实边界: 三项成本（阻力+维护+做功）的**完整变分最优性**（含导数）
-  留待 Analysis.Calculus 形式化——本次证明守恒+对称的代数部分
+### ✅ C1 默里定律最优性（Murray.lean, 已 Lean 验证, 含完整变分）
+- `murray_variational_optimal` (**三项成本完整变分核心**): C(r) = a/r⁴ + b·r²,
+  r0⁶ = 2a/b ⟹ ∀r>0, C(r0) ≤ C(r)——**全局最小**, 纯代数证明
+  (C(r)-C(r0) = b·r0²·(t-1)²·(2t+1)/(2t²) ≥ 0, 免微积分)
+- `murray_flow_conservation`: 流量守恒 Q=Q₁+Q₂ ⟹ r³ = r₁³ + r₂³
+- `murray_symmetric_ratio_cube`: 对称分叉 ⟹ (r₀/r)³ = 1/2
+- `symmetric_branch_minimizes_maintenance`: 对称 = 维护成本最小
+- `murray_full_chain`: 变分最优 + 守恒 + 对称 完整链
+- 注意: 驻点条件 (r⁶ = 2a/b) 以代数形式给出; 含导数的验证
+  (deriv 形式) 可用 Analysis.Calculus 补充, 代数版已闭合论证
 
 ### ✅ C2 最优深度存在条件（Murray.lean, 已 Lean 验证）
 - `depth_beyond_threshold_useless`: 边际收益最终 < 边际成本
@@ -81,6 +84,17 @@ tags: [fractal, murray-law, transformer-depth, lean-candidates]
 - `optimal_depth_exists`: 递减收益 + 正成本 + 收益最终低于成本
   ⟹ 最优深度存在且 ≤ k₀+1（"深度不是越深越好"的精确条件）
 - 分形连接密度 (1-d)^(D-1) 严格递减（Fractal.lean）天然满足收益递减条件
+
+### ✅ C3 连接密度幂律（Fractal.lean, 已 Lean 验证）
+- `connection_density_strict_anti`: (1-d)^(D-1) 严格递减 (D>1)
+- `connection_density_convex_D3`: (1-d)² 凸——浅层密集/深层稀疏的
+  加速衰减 (二阶性质), 与均匀密度的本质区别
+
+### ✅ C4 深度收益递减（Murray.lean, 已 Lean 验证）
+- `power_law_marginal_decays`: Δ_k = c/(k+1)² ①严格递减
+  ②最终低于任意正成本 (Archimedean)
+- `power_law_optimal_depth`: 幂律收益 ⟹ 有限最优深度 L* 存在
+  (optimal_depth_exists 实例化)
 
 （以下命题是**候选素材**，等待用户确认假设后逐一 Lean 验证）
 

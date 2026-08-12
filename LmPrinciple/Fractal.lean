@@ -311,6 +311,18 @@ theorem connection_density_strict_anti (D : ℝ) (hD : 0 < D - 1) {d1 d2 : ℝ}
   have hbase_nonneg : 0 ≤ 1 - d2 := by linarith
   exact Real.rpow_lt_rpow hbase_nonneg hbase_lt hD
 
+/-- **C3 连接密度凸性 (D = 3)**: δ(d) = (1-d)² 是凸函数——
+    δ(λa + (1-λ)b) ≤ λ·δ(a) + (1-λ)·δ(b) (λ ∈ [0,1])。
+    凸性 = 浅层密集/深层稀疏的加速衰减 (二阶性质): 深层比浅层
+    稀疏得更快, 这是分形连接密度与均匀密度的本质区别。 -/
+theorem connection_density_convex_D3 (a b l : ℝ) (hl0 : 0 ≤ l) (hl1 : l ≤ 1) :
+    (1 - (l * a + (1 - l) * b)) ^ 2 ≤ l * (1 - a) ^ 2 + (1 - l) * (1 - b) ^ 2 := by
+  -- 令 x = 1-a, y = 1-b: (lx + (1-l)y)² ≤ lx² + (1-l)y² ⟺ l(1-l)(x-y)² ≥ 0
+  have hmain : 0 ≤ l * (1 - l) * (1 - a - (1 - b)) ^ 2 := by
+    have hl : 0 ≤ 1 - l := by linarith
+    exact mul_nonneg (mul_nonneg hl0 hl) (sq_nonneg _)
+  nlinarith
+
 /-- **自由能下降速率的完整表述**: 分形 (前缀集中) 组织的自由能下降
     ≥ 均匀堆叠 —— 前缀分配定理 + 残差指数衰减 + 凸组合误差界的组合。 -/
 theorem fractal_beats_uniform {n B : ℕ} (Δ : ℕ → ℝ)

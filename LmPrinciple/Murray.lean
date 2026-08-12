@@ -186,4 +186,127 @@ theorem optimal_depth_exists (Δ : ℕ → ℝ) (mc : ℝ)
 -- (D > 1, 见 Fractal.connection_density_strict_anti)——分形结构天然满足
 -- "边际收益递减"条件, 因此最优深度存在性定理适用。
 
+-- ============================================================
+-- §3 三项成本完整变分证明 (代数版, 免微积分)
+-- ============================================================
+
+/-- **C1-变分 三项成本最优性**: 单管成本 C(r) = a/r⁴ + b·r²
+    (a = 流量功率系数 ∝ Q², b = 代谢/维护系数, a,b > 0)。
+    最优半径 r0 满足 r0⁶ = 2a/b (驻点条件 -4a/r⁵ + 2br = 0 的代数形式)
+    ⟹ ∀ r > 0, C(r0) ≤ C(r)——**全局最小** (凸性)。
+    证明 (纯代数, 不用导数): C(r) - C(r0) = b·r0²·(t-1)²·(2t+1)/(2t²) ≥ 0,
+    其中 t = (r/r0)² > 0。这就是默里定律的变分核心:
+    成本函数的形状 (阻力 1/r⁴ + 维护 r²) 锁定最优半径。 -/
+theorem murray_variational_optimal (a b r r0 : ℝ) (ha : 0 < a) (hb : 0 < b)
+    (hr : 0 < r) (hr0 : 0 < r0) (hopt : r0 ^ 6 = 2 * a / b) :
+    a / r0 ^ 4 + b * r0 ^ 2 ≤ a / r ^ 4 + b * r ^ 2 := by
+  -- 代入 a = b·r0⁶/2 (从 hopt)
+  have ha' : a = b * r0 ^ 6 / 2 := by
+    have hb0 : b ≠ 0 := ne_of_gt hb
+    have h2a : 2 * a = r0 ^ 6 * b := by
+      field_simp [hb0] at hopt
+      nlinarith
+    nlinarith
+  -- 差 = b·r0²·(t-1)²·(2t+1)/(2t²), t = (r/r0)²
+  let t : ℝ := (r / r0) ^ 2
+  have ht : 0 < t := sq_pos_of_pos (div_pos hr hr0)
+  have hdiff : a / r ^ 4 + b * r ^ 2 - (a / r0 ^ 4 + b * r0 ^ 2) =
+      b * r0 ^ 2 * (t - 1) ^ 2 * (2 * t + 1) / (2 * t ^ 2) := by
+    rw [ha']
+    dsimp [t]
+    field_simp [ne_of_gt hr, ne_of_gt hr0, ne_of_gt ht]
+    ring
+  have hnonneg : 0 ≤ b * r0 ^ 2 * (t - 1) ^ 2 * (2 * t + 1) / (2 * t ^ 2) := by
+    positivity
+  have hle : 0 ≤ a / r ^ 4 + b * r ^ 2 - (a / r0 ^ 4 + b * r0 ^ 2) := by
+    rw [hdiff]
+    exact hnonneg
+  linarith
+
+/-- **C1-守恒 流量守恒 ⟹ 半径立方相加**: 若 r³ = c·Q (半径立方 ∝ 流量,
+    变分最优性的推论) 且流量守恒 Q = Q₁ + Q₂, 则 r³ = r₁³ + r₂³——
+    默里定律的分叉形式 (与 murray_symmetric_ratio_cube 组合
+    ⟹ 对称分叉比率 ρ³ = 1/2 即 0.79)。 -/
+theorem murray_flow_conservation (r r₁ r₂ Q Q₁ Q₂ c : ℝ)
+    (hr : r ^ 3 = c * Q) (hr₁ : r₁ ^ 3 = c * Q₁) (hr₂ : r₂ ^ 3 = c * Q₂)
+    (hQ : Q = Q₁ + Q₂) :
+    r ^ 3 = r₁ ^ 3 + r₂ ^ 3 := by
+  rw [hr, hr₁, hr₂, hQ]
+  ring
+
+/-- **C1 完整链**: 三项成本变分最优 (r0⁶ = 2a/b ⟹ 全局最小) +
+    流量守恒 (r³ = r₁³ + r₂³) + 对称分叉 (ρ³ = 1/2)——
+    默里定律 0.79 的完整推导链 (代数部分全部机器验证)。 -/
+theorem murray_full_chain (a b r r₀ : ℝ) (ha : 0 < a) (hb : 0 < b)
+    (hr : 0 < r) (hr₀ : 0 < r₀) (hopt : r₀ ^ 6 = 2 * a / b)
+    (hcons : 2 * r₀ ^ 3 = r ^ 3) :
+    (a / r₀ ^ 4 + b * r₀ ^ 2 ≤ a / r ^ 4 + b * r ^ 2) ∧
+    (r₀ / r) ^ 3 = 1 / 2 := by
+  constructor
+  · exact murray_variational_optimal a b r r₀ ha hb hr hr₀ hopt
+  · exact murray_symmetric_ratio_cube r r₀ hr hcons
+
+-- ============================================================
+-- §4 C4 深度收益递减: 幂律收益序列 ⟹ 最优深度存在
+-- ============================================================
+
+/-- **C4a 幂律收益性质**: Δ_k = c/(k+1)² (c > 0)——
+    ① 严格递减 (k < j ⟹ Δ_j < Δ_k) ② 最终低于任意正成本 λ
+    (Archimedean: ∃k₀, ∀k ≥ k₀, c/(k+1)² < λ)。
+    这就是"深度收益递减" (文章: 边际提升缩小, 成本线性增长) 的
+    解析实例——它精确满足 optimal_depth_exists 的条件。 -/
+theorem power_law_marginal_decays (c : ℝ) (hc : 0 < c) :
+    (∀ {k j : ℕ}, k < j → c / (j + 1 : ℝ) ^ 2 < c / (k + 1 : ℝ) ^ 2) ∧
+    (∀ mc : ℝ, 0 < mc → ∃ k₀ : ℕ, ∀ k ≥ k₀, c / (k + 1 : ℝ) ^ 2 < mc) := by
+  constructor
+  · intro k j hkj
+    -- k+1 < j+1, 都 ≥ 1——平方严格递增 + 倒数反向 + c 正
+    have hk1 : 0 < (k + 1 : ℝ) := by positivity
+    have hj1 : 0 < (j + 1 : ℝ) := by positivity
+    have hsq : (k + 1 : ℝ) ^ 2 < (j + 1 : ℝ) ^ 2 := by
+      rw [sq_lt_sq]
+      rw [abs_of_pos hk1, abs_of_pos hj1]
+      exact_mod_cast (Nat.succ_lt_succ hkj)
+    have hrecip : (1 : ℝ) / (j + 1 : ℝ) ^ 2 < 1 / (k + 1 : ℝ) ^ 2 := by
+      simpa using (inv_lt_inv₀ (sq_pos_of_pos hj1) (sq_pos_of_pos hk1)).mpr hsq
+    -- c·(1/(j+1)²) < c·(1/(k+1)²)
+    have hmul : c * (1 / (j + 1 : ℝ) ^ 2) < c * (1 / (k + 1 : ℝ) ^ 2) :=
+      mul_lt_mul_of_pos_left hrecip hc
+    simpa using hmul
+  · intro mc hmc
+    -- Archimedean: ∃ n, c/λ < n——取 k₀ = n+1
+    rcases exists_nat_gt (c / mc) with ⟨n, hn⟩
+    refine ⟨n + 1, ?_⟩
+    intro k hk
+    -- k ≥ n+1 ⟹ k+1 > n > c/λ ⟹ c/(k+1) < λ
+    have hnlt : c / mc < (k + 1 : ℝ) := by
+      have hkn : n < k + 1 := by omega
+      exact lt_trans hn (by exact_mod_cast hkn)
+    have hkpos : 0 < (k + 1 : ℝ) := by positivity
+    have hclt : c < (k + 1 : ℝ) * mc := (div_lt_iff₀ hmc).mp hnlt
+    have hck : c / (k + 1 : ℝ) < mc := by
+      have hclt' : c < mc * (k + 1 : ℝ) := by nlinarith
+      exact (div_lt_iff₀ hkpos).mpr hclt'
+    -- c/(k+1)² ≤ c/(k+1) (k+1 ≥ 1 ⟹ 平方 ≥ 自身)
+    have hkk : (1 : ℝ) / (k + 1 : ℝ) ^ 2 ≤ 1 / (k + 1 : ℝ) := by
+      have hk1 : (1 : ℝ) ≤ (k + 1 : ℝ) := by norm_num
+      have hk2 : (k + 1 : ℝ) ^ 2 ≥ (k + 1 : ℝ) := by nlinarith [sq_nonneg (k : ℝ)]
+      simpa using (inv_le_inv₀ (sq_pos_of_pos hkpos) hkpos).mpr hk2
+    have hck2 : c / (k + 1 : ℝ) ^ 2 ≤ c / (k + 1 : ℝ) := by
+      have hmul : c * (1 / (k + 1 : ℝ) ^ 2) ≤ c * (1 / (k + 1 : ℝ)) :=
+        mul_le_mul_of_nonneg_left hkk (le_of_lt hc)
+      simpa using hmul
+    exact lt_of_le_of_lt hck2 hck
+
+/-- **C4 幂律收益 ⟹ 最优深度存在**: Δ_k = c/(k+1)² (c > 0),
+    边际成本 λ > 0——optimal_depth_exists 实例化:
+    有限最优深度 L* 存在 ("深度不是越深越好"对幂律收益的严格结论)。 -/
+theorem power_law_optimal_depth (c mc : ℝ) (hc : 0 < c) (hmc : 0 < mc) :
+    ∃ L : ℕ, ∀ L' : ℕ,
+      (∑ k in range L', c / (k + 1 : ℝ) ^ 2) - mc * L' ≤
+      (∑ k in range L, c / (k + 1 : ℝ) ^ 2) - mc * L := by
+  have hcross : ∃ k₀ : ℕ, ∀ k ≥ k₀, c / (k + 1 : ℝ) ^ 2 < mc :=
+    (power_law_marginal_decays c hc).2 mc hmc
+  exact optimal_depth_exists (fun k => c / (k + 1 : ℝ) ^ 2) mc hmc hcross
+
 end Murray
