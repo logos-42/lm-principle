@@ -153,3 +153,19 @@ schema_version: 2
   不定义相等 (需 simpa); ite_mul 不是 mul_ite; Real.log_nonpos 不存在
   (用 log_nonpos_iff)
 - 已推送
+
+## [2026-08-12] 会话 | IEEE 论文撰写：分形必要性 → 机器验证定理
+
+- **产出**: `paper/` 目录，Overleaf 同款官方 IEEEtran 模板（CTAN 源）
+  - `main_conf.tex`（IEEE 会议版，双栏）+ `main_jrnl.tex`（IEEE 期刊版，单栏，含更详细证明 + 定理-模块映射附录）
+  - `IEEEtran.cls`、`bibtex/`、`make_figures.py` + 3 张 `fig_*.png/pdf`
+- **论文主线**: 分形必要性 → 60 条机器验证定理（C1-C4 从假设升格为定理）
+- **架构**: 动机(Why formal proof now / Scaling laws / 分形叙述 / 悖论) → 蒸馏 C1-C4 假设 → 结构论证六节（每节定理+证明+实证呼应）→ 实验印证 → 结论与局限
+- **三张图全部用真实数据**（源自 `shape.md` 原始脚本输出）:
+  - fig_murray: 默里定律三项成本变分最优 0.79
+  - fig_fractal_params: 分形 vs 均匀 -25% 参数、损失几乎相等 (113.61 vs 113.62)
+  - fig_depth: 真实逐点数据 depth=[2,4,6,8,10,14,18]，深度2最优、≥4断崖
+- **引用自检**: 会议版/期刊版全部 `\ref` 无悬空（脚本校验），图/表/定理/Remark 均在正文被引用
+- **作者**: Yuanjie Liu, yuanjieliu65@gmail.com（无机构）
+- **遗留**: 本机无 LaTeX 未编译验证（待 Overleaf）；`shape2026` 引用 URL 仍是 example.com 占位，待真实链接
+- 本次会话一并提交推送
