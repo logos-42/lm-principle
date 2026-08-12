@@ -40,7 +40,11 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   ——残差防坍缩（单层 + n 层: 距离 ≥ (1-c)^n 下界 = 高维结构不坍缩的严格
   证明）、LSTM 门控记忆保留 (c_t ≥ α^t·c_0 信息指数保留)、RNN 乘性记忆
   消失 (= 收缩特例, ≤ |w|^t 指数衰减)、对比总定理
-- ✅ **总计: 29 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/Efficiency.lean (2026-08-12, 8 定理)**: 参数利用效率对比
+  ——每参数交互率（注意力 n²/(3d²) vs RNN n, 反超条件 3d²<n）、注意力 vs CNN
+  交互数、LSTM 门控保留上界、参数信息保留对比总定理、残差参数保留、
+  分形参数分配效率
+- ✅ **总计: 37 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿

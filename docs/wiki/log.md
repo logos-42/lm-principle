@@ -82,3 +82,19 @@ schema_version: 2
 - **推送门禁**: .lefthook.yml (pre-push: lake build + 无 sorry + wiki_lint)
   + 手动 .git/hooks/pre-push 兜底 (本机 choco/winget 无 lefthook 包)
 - 已推送
+
+## [2026-08-12] 会话 | Efficiency.lean: 参数利用效率对比 (8 定理)
+
+- 用户问题: 对比 Transformer 参数利用效率 vs RNN/CNN/LSTM (结合假设)
+- 新增 `LmPrinciple/Efficiency.lean`（8 定理, 总定理数 29 → **37**）:
+  - 每参数交互率: attention n²/(3d²)（参数与 n 无关）vs RNN n/1、
+    CNN n·k/k = n——反超条件 **3d² < n**（attention_more_interactions_per_param）
+  - attention_vs_cnn_interactions: 核 k<n 时 n² > n·k（全局 > 局部）
+  - forget_gate_retention_upper: 门控保留率 ≤ 100%（上界）
+  - param_retention_compare: RNN 信息 ≤ |w|^t vs LSTM ≥ α^t（对比总定理）
+  - residual_param_retention: 恒等路径免费参数效率
+  - fractal_param_allocation: 参数分配效率（分形 ≥ 均匀）
+- 结论: 参数效率两维度——**交互率**（长序列 3d²<n 时 Transformer 反超,
+  全局交互规模经济）vs **信息保留率**（门控/恒等路径可学到 100%,
+  RNN 被稳定性锁死）; 分形分配 = 每参数边际自由能下降最大化
+- 已推送

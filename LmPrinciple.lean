@@ -17,3 +17,4 @@ import LmPrinciple.Transformer
 import LmPrinciple.LMT
 import LmPrinciple.Fractal
 import LmPrinciple.ArchCompare
+import LmPrinciple.Efficiency
