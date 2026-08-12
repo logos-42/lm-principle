@@ -8,7 +8,36 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # mathlib's post_update hook tries to download the .olean cache; skip it.
+      MATHLIB_NO_CACHE_ON_UPDATE: "1"
 
     steps:
       - uses: actions/checkout@v4
+
+      # This repo pins mathlib + 8 deps as LOCAL path requires (offline setup on
+      # the dev machine). CI has no .lake/packages, so materialize the exact same
+      # pinned revisions here before lean-action builds.
+      - name: Materialize Lean dependencies (offline pin)
+        run: |
+          set -euo pipefail
+          mkdir -p .lake/packages
+          clone() {
+            local name="$1" url="$2" rev="$3"
+            if [ ! -d ".lake/packages/$name/.git" ]; then
+              git clone --filter=blob:none --no-checkout "$url" ".lake/packages/$name"
+            fi
+            git -C ".lake/packages/$name" fetch --depth 1 origin "$rev"
+            git -C ".lake/packages/$name" checkout -q "$rev"
+          }
+          clone mathlib          https://github.com/leanprover-community/mathlib4        308445d7985027f538e281e18df29ca16ede2ba3
+          clone batteries        https://github.com/leanprover-community/batteries        8d2067bf518731a70a255d4a61b5c103922c772e
+          clone Qq               https://github.com/leanprover-community/quote4            e9c65db4823976353cd0bb03199a172719efbeb7
+          clone aesop            https://github.com/leanprover-community/aesop             8ff27701d003456fd59f13a9212431239d902aef
+          clone proofwidgets     https://github.com/leanprover-community/ProofWidgets4     6980f6ca164de593cb77cd03d8eac549cc444156
+          clone importGraph      https://github.com/leanprover-community/import-graph       d07bd64f1910f1cc5e4cc87b6b9c590080e7a457
+          clone LeanSearchClient https://github.com/leanprover-community/LeanSearchClient  6c62474116f525d2814f0157bb468bf3a4f9f120
+          clone plausible        https://github.com/leanprover-community/plausible         c4aa78186d388e50a436e8362b947bae125a2933
+          clone Cli              https://github.com/leanprover/lean4-cli                   7c6aef5f75a43ebbba763b44d535175a1b04c9e0
+
       - uses: leanprover/lean-action@v1
