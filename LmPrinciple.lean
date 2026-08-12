@@ -15,3 +15,4 @@ import LmPrinciple.RNN
 import LmPrinciple.CNN
 import LmPrinciple.Transformer
 import LmPrinciple.LMT
+import LmPrinciple.Fractal

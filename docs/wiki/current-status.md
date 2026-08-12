@@ -32,6 +32,11 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 - ✅ **LmPrinciple/LMT.lean**: 容量计数（R 比特 ⟹ ≤2^R 状态；V=126 时 6 比特不够
   7 比特够；126/7 = 18× 节省）；复 SSM = RNN.rnn 复化（定理复用）；
   IE/EHS 模型结构形式化（论文式 1/2）
+- ✅ **LmPrinciple/Fractal.lean (2026-08-12, 8 定理)**: 分形结构上的自由能
+  下降速率推演——分形分配定理（预算前缀集中 ≥ 均匀平摊，核心）、残差收缩
+  ⟹ 自由能指数下降、QKV 注意力凸组合误差界、MoE 凸组合误差界、分形维数
+  D=log b/log(1/s) 尺度不变、连接密度幂律单调、fractal_beats_uniform 总定理
+- ✅ **总计: 24 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
 - ✅ **远程**: git@github.com:logos-42/lm-principle.git（SSH 已认证，已推送）
 

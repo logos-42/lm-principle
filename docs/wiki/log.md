@@ -52,3 +52,18 @@ schema_version: 2
   （默里定律最优性 / 分形维数-深度关系 / 连接密度幂律 / 深度收益递减）
 - C2 与 LMT-twister V34 发现呼应（训练容量可规模破解, 泛化独立封顶）
 - 下一步: 用户确认假设 → 在 Lean 中形式化 C1-C4 或主定理 2.1
+
+## [2026-08-12] 会话 | Fractal.lean: 分形自由能下降速率 Lean 推演 (8 定理)
+
+- 用户假设: QKV+残差+MoE 在分形结构上自由能下降速率是否更高? 高维数学机制?
+- 新增 `LmPrinciple/Fractal.lean`（8 定理全绿, 总定理数 16 → **24**）:
+  ① prefix_allocation_optimal（收益递减 ⟹ 预算前缀集中 ≥ 均匀平摊——分形
+  比均匀快的严格证明）② residual_contraction_decay ③ free_energy_exponential_decay
+  ④ attention_error_bound（QKV 凸组合误差界）⑤ moe_error_bound ⑥
+  fractal_dimension_scale_invariant ⑦ connection_density_strict_anti ⑧
+  fractal_beats_uniform
+- 结论: **是——只要每层下降量严格递减, 分形组织总下降 ≥ 均匀堆叠**;
+  高维机制 = 凸组合(凸包) + 收缩映射(指数衰减) + 幂律稀疏((1-d)^(D-1))
+- 编译迭代记录: sum_sub_distrib 方向、Nat.cast_sub、iterate_succ' + rfl、
+  calc 方向（hdouble .symm）等坑
+- 已推送

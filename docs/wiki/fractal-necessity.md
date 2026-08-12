@@ -13,7 +13,8 @@ tags: [fractal, murray-law, transformer-depth, lean-candidates]
 
 > 来源: `docs/wiki/shape.md`（用户提供，super_frontier_radar 系列）
 > 本文是 compile-first 产物：从 raw 文章提炼论点 + 实验数据 +
-> 与 lm_principle（大模型数学第一性原理）的接口——**候选可形式化命题**。
+> 与 lm_principle（大模型数学第一性原理）的接口——候选可形式化命题。
+> **2026-08-12 更新: 核心命题已在 `LmPrinciple/Fractal.lean` 中 Lean 验证（8 定理）。**
 
 ## 核心论点（三条法则）
 
@@ -40,7 +41,31 @@ tags: [fractal, murray-law, transformer-depth, lean-candidates]
 默里定律的完整最优性需要三项成本同时最小化。这是简化模型的边界暴露，
 也是"分形维数有限性"物理根源的一部分。
 
-## 与 lm_principle 的接口——候选可形式化命题
+## Lean 验证结果（LmPrinciple/Fractal.lean, 8 定理全绿）
+
+**论证链**: 自由能 F = 误差², 网络 = 逐层降自由能。
+
+| 定理 | 内容 | 对应命题 |
+|------|------|---------|
+| `prefix_allocation_optimal` | 收益递减时预算集中前缀 ≥ 均匀平摊 | 分形比均匀下降更快（核心） |
+| `residual_contraction_decay` | 残差 c-收缩 ⟹ 误差 ≤ cⁿ\|e\| 指数衰减 | 残差稳定传播 |
+| `free_energy_exponential_decay` | 自由能 ≤ (cⁿ)²·F₀ 指数下降 | 残差 ⟹ 自由能指数降 |
+| `attention_error_bound` | QKV 输出 = V 凸组合 ⟹ 误差 ≤ 最差记忆 | QKV 模块误差界 |
+| `moe_error_bound` | 门控归一 ⟹ 误差 ≤ 最差专家 | MoE 模块误差界 |
+| `fractal_dimension_scale_invariant` | D = log b/log(1/s), n 级缩放不变 | 分形维数定义 |
+| `connection_density_strict_anti` | (1-d)^(D-1) 随深度严格递减 | 浅层密集深层稀疏 |
+| `fractal_beats_uniform` | 分形前缀分配 ≥ 均匀 (Δ 递减) | 完整结论 |
+
+**回答核心问题**（QKV+残差+MoE 在分形结构上自由能下降速率更高吗）:
+- **是, 数学上可证**: 只要每层自由能下降量 Δ_k 严格递减（深度收益递减——
+  实验三的断崖正是实证）, 分形组织（预算前缀集中 + 深层幂律稀疏）的总下降
+  ≥ 均匀堆叠（定理 1）。深层稀疏省下的成本转移到高收益浅层。
+- **高维实现机制**: ①凸组合（凸包）——注意力/MoE 输出被限制在凸包内,
+  误差有界（定理 4/5）；②收缩映射——残差/RNN 的 Lipschitz 常数决定
+  自由能指数下降速率（定理 2/3）；③幂律稀疏 (1-d)^(D-1)——分形维数 D
+  的直接函数（定理 7）。
+
+## 候选可形式化命题（部分已证）
 
 （以下命题是**候选素材**，等待用户确认假设后逐一 Lean 验证）
 
