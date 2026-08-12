@@ -64,6 +64,21 @@ schema_version: 2
   fractal_beats_uniform
 - 结论: **是——只要每层下降量严格递减, 分形组织总下降 ≥ 均匀堆叠**;
   高维机制 = 凸组合(凸包) + 收缩映射(指数衰减) + 幂律稀疏((1-d)^(D-1))
-- 编译迭代记录: sum_sub_distrib 方向、Nat.cast_sub、iterate_succ' + rfl、
-  calc 方向（hdouble .symm）等坑
+- 已推送
+
+## [2026-08-12] 会话 | ArchCompare.lean: RNN/CNN/LSTM 对比 + 不坍缩验证 (5 定理)
+
+- 用户假设: 对比 RNN/CNN/LSTM; 运行中高维结构不坍缩且信息流动最高效?
+- 新增 `LmPrinciple/ArchCompare.lean`（5 定理, 总定理数 24 → **29**）:
+  - `residual_no_collapse` / `_n`: 残差防坍缩——收缩残差 ⟹ 输出距离
+    ≥ (1-c)^n·输入距离 (**不坍缩到单点**的严格证明)
+  - `lstm_memory_retention`: 遗忘门 α ⟹ 旧信息保留 α^t 比例 (指数保留)
+  - `rnn_memory_decay`: RNN = 收缩特例 ⟹ 信息 ≤ |w|^t 指数消失
+  - `lstm_beats_rnn_retention`: 对比总定理 (门控 vs 乘性记忆)
+- 结论: **不坍缩** = 残差恒等路径保证 (纯乘性网络可能坍缩);
+  **信息高效** = 门控/恒等路径损失率可学习 (α→1 零损失, vs RNN 固定 1-|w|)
+- 新第一性原理问题: P4 最优信息传播 (Lipschitz 预算下残差最优, 待信息论定义);
+  P5 距离下界 (1-c)^n × 容量 2^R 组合 (待)
+- **推送门禁**: .lefthook.yml (pre-push: lake build + 无 sorry + wiki_lint)
+  + 手动 .git/hooks/pre-push 兜底 (本机 choco/winget 无 lefthook 包)
 - 已推送

@@ -1,0 +1,20 @@
+# lefthook 门禁: 验证无错误才能推送
+# 安装: lefthook install (或手动复制到 .git/hooks/)
+# 验证内容:
+#   pre-push  : lake build (Lean 全量类型检查) + 无 sorry/axiom + wiki_lint
+#   pre-commit: wiki_lint (轻量)
+min_version: 1.5.0
+
+pre-push:
+  parallel: false
+  commands:
+    lean-verify:
+      run: sh scripts/verify_all.sh
+      fail_text: "Lean 验证失败: 存在编译错误或未证明漏洞, 禁止推送 (修正后重试)"
+
+pre-commit:
+  parallel: false
+  commands:
+    wiki-lint:
+      run: /c/Python314/python scripts/wiki_lint.py --strict=v2
+      fail_text: "wiki_lint 未通过 (v2 schema 违规), 禁止提交"

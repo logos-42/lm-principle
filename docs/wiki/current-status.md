@@ -36,7 +36,13 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   下降速率推演——分形分配定理（预算前缀集中 ≥ 均匀平摊，核心）、残差收缩
   ⟹ 自由能指数下降、QKV 注意力凸组合误差界、MoE 凸组合误差界、分形维数
   D=log b/log(1/s) 尺度不变、连接密度幂律单调、fractal_beats_uniform 总定理
-- ✅ **总计: 24 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/ArchCompare.lean (2026-08-12, 5 定理)**: RNN/CNN/LSTM 对比
+  ——残差防坍缩（单层 + n 层: 距离 ≥ (1-c)^n 下界 = 高维结构不坍缩的严格
+  证明）、LSTM 门控记忆保留 (c_t ≥ α^t·c_0 信息指数保留)、RNN 乘性记忆
+  消失 (= 收缩特例, ≤ |w|^t 指数衰减)、对比总定理
+- ✅ **总计: 29 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
+  wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
 - ✅ **远程**: git@github.com:logos-42/lm-principle.git（SSH 已认证，已推送）
 
