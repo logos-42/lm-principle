@@ -37,8 +37,10 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 
 ## 未完成 / 待办
 
-- ⏳ **主定理 2.1 信息论证明**: 引理 A.1（IE 容量，DPI）→ A.2（Fano）→
-  A.3/A.4（EHS）——等待用户提供假设 + mathlib InformationTheory API
+- ⏳ **主定理 2.1 信息论证明**（**等用户假设，随时可开工**）: 引理 A.1（IE 容量，
+  DPI）→ A.2（Fano）→ A.3/A.4（EHS）。数学库武器已确认就位:
+  `Mathlib/InformationTheory/Hamming.lean`（Fano 不等式）+ 
+  `Mathlib/InformationTheory/KullbackLeibler/`（互信息 + DPI）
 - ⏳ **CNN 一般逐点卷积公式**: (f⋆g)(n) = Σ f(k)g(n-k)（Finsupp 双层和展开，
   非第一性原理必需，留 TODO）
 - ⏳ **按需 olean 优化**: 并行会话验证过 `lake exe cache get <Module>` 可按需拉
