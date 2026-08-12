@@ -7,10 +7,44 @@ defaultTargets = ["LmPrinciple"]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
 
+# --- 本地物化依赖 (绕过 github 封锁: 全部 path require, 不联网) ---
+# mathlib 及其依赖均从 github 经 SSH 克隆后固定到兼容 rev (见 scripts/pin_deps.sh)
+
 [[require]]
 name = "mathlib"
-git = "https://github.com/leanprover-community/mathlib4"
-rev = "308445d7985027f538e281e18df29ca16ede2ba3"
+path = ".lake/packages/mathlib"
+
+[[require]]
+name = "batteries"
+path = ".lake/packages/batteries"
+
+[[require]]
+name = "Qq"
+path = ".lake/packages/Qq"
+
+[[require]]
+name = "aesop"
+path = ".lake/packages/aesop"
+
+[[require]]
+name = "proofwidgets"
+path = ".lake/packages/proofwidgets"
+
+[[require]]
+name = "importGraph"
+path = ".lake/packages/importGraph"
+
+[[require]]
+name = "LeanSearchClient"
+path = ".lake/packages/LeanSearchClient"
+
+[[require]]
+name = "plausible"
+path = ".lake/packages/plausible"
+
+[[require]]
+name = "Cli"
+path = ".lake/packages/Cli"
 
 [[lean_lib]]
 name = "LmPrinciple"

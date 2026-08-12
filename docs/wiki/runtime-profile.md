@@ -4,6 +4,10 @@ source: session
 created: 2026-08-12
 tags: [meta, ci, validation]
 status: current
+last_confirmed: 2026-08-12
+audience: public
+stage: current
+schema_version: 2
 ---
 
 `scripts/` 下的每个脚本都在 `# runtime: ...` 头里声明自己的运行时。

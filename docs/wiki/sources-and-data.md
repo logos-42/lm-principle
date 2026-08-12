@@ -4,6 +4,10 @@ source: session
 created: 2026-08-12
 tags: [data, raw]
 status: current
+last_confirmed: 2026-08-12
+audience: public
+stage: current
+schema_version: 2
 ---
 
 原始资料默认放在本地 raw 根目录，不直接进 Git。

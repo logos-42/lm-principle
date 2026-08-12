@@ -1,1 +1,6 @@
 source_id,company,vendor,kind,filename,raw_rel_path,status,compiled_into,notes
+lmt-paper-en,lmt-twister,,tex,head-en.tex,D:/AI/扭量模型/LMT-twister/Headless_Model/head-en.tex,referenced,LmPrinciple/LMT.lean,"主定理 2.1 + 引理 A.1-A.4 英文版"
+lmt-paper-zh,lmt-twister,,tex,head-zh.tex,D:/AI/扭量模型/LMT-twister/Headless_Model/head-zh.tex,referenced,LmPrinciple/LMT.lean,"附录 A 严格证明草稿 (Fano → PAC-Bayes 待补)"
+lmt-ssm-src,lmt-twister,,python,complex_ssm.py,D:/AI/扭量模型/LMT-twister/headless/studio/release/win-unpacked/resources/hibs_lnn/complex_ssm.py,referenced,LmPrinciple/LMT.lean,"复数对角 SSM ZOH 离散化 (V16)"
+lmt-mobius-src,lmt-twister,,python,mobius.py,D:/AI/扭量模型/LMT-twister/headless/studio/release/win-unpacked/resources/hibs_lnn/mobius.py,referenced,LmPrinciple/CNN.lean,"Möbius 约束 (纤维丛投影)"
+lmt-wiki-status,lmt-twister,,md,current-status.md,D:/AI/扭量模型/LMT-twister/docs/wiki/current-status.md,referenced,docs/wiki/current-status.md,"V34.7 状态: c4 组合缺口, 泛化瓶颈在表示→组合转化"

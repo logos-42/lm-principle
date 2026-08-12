@@ -4,6 +4,10 @@ source: session
 created: 2026-08-12
 tags: [strategy, git]
 status: current
+last_confirmed: 2026-08-12
+audience: public
+stage: current
+schema_version: 2
 ---
 
 ## 结论
