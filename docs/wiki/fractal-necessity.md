@@ -65,7 +65,22 @@ tags: [fractal, murray-law, transformer-depth, lean-candidates]
   自由能指数下降速率（定理 2/3）；③幂律稀疏 (1-d)^(D-1)——分形维数 D
   的直接函数（定理 7）。
 
-## 候选可形式化命题（部分已证）
+## 候选可形式化命题（C1-C2 已证, C3-C4 待）
+
+### ✅ C1 默里定律最优性（Murray.lean, 已 Lean 验证）
+- `murray_symmetric_ratio_cube`: 流量守恒 r³ = r₁³ + r₂³ + 对称分叉
+  ⟹ (r₀/r)³ = 1/2——比率 ρ = 2^(-1/3) ≈ 0.79 被守恒律锁定
+- `symmetric_branch_minimizes_maintenance`: 2r₁r₂ ≤ r₁²+r₂²
+  （对称 = 维护成本最小）
+- 诚实边界: 三项成本（阻力+维护+做功）的**完整变分最优性**（含导数）
+  留待 Analysis.Calculus 形式化——本次证明守恒+对称的代数部分
+
+### ✅ C2 最优深度存在条件（Murray.lean, 已 Lean 验证）
+- `depth_beyond_threshold_useless`: 边际收益最终 < 边际成本
+  （∃k₀, ∀k≥k₀, Δ_k<λ）⟹ 超过 k₀+1 层严格更差
+- `optimal_depth_exists`: 递减收益 + 正成本 + 收益最终低于成本
+  ⟹ 最优深度存在且 ≤ k₀+1（"深度不是越深越好"的精确条件）
+- 分形连接密度 (1-d)^(D-1) 严格递减（Fractal.lean）天然满足收益递减条件
 
 （以下命题是**候选素材**，等待用户确认假设后逐一 Lean 验证）
 

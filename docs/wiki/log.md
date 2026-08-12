@@ -114,3 +114,19 @@ schema_version: 2
 - 结论: 自由能最小化依赖的信息结构 = ①恒等/门控回馈 (防坍缩+保留)
   ②全局交互 (凸组合误差界) ③前缀参数集中 (分形) ④交叉熵下界 (T8)
 - 已推送
+
+## [2026-08-12] 会话 | Murray.lean: 默里定律 + 最优深度条件 (5 定理)
+
+- 用户要求: 形式化 C1 (默里定律三项成本最优性) + C2 (分形维数⟹最优深度)
+- 新增 `LmPrinciple/Murray.lean`（5 定理, 总定理数 49 → **54**）:
+  - C1: murray_symmetric_ratio_cube (守恒 ⟹ ρ³=1/2 即 0.79 被锁定) +
+    symmetric_branch_minimizes_maintenance (对称=维护最小) +
+    murray_law_algebra (组合)
+  - C2: depth_beyond_threshold_useless (边际收益<边际成本 ⟹ 超阈值
+    加深必然更差) + optimal_depth_exists (最优深度存在且 ≤ k₀+1)
+- **回答"最优深度在什么条件成立"**: ①收益严格递减 ②成本>0
+  ③收益最终低于成本 (hcross)——三者满足 ⟹ 有限最优深度存在;
+  若 ③ 不成立 (∀k, Δ_k≥λ) 则"越深越好" (最优深度不存在/无限)
+- 编译坑记录: λ 是 Lean 关键字不能做标识符; mc·(m+1) 的 Nat cast
+  陷阱 (↑(m+1) vs ↑m+1); conv_lhs 限定重写范围
+- 已推送

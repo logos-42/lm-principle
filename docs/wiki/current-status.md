@@ -49,7 +49,10 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   非负 = 最小变分自由能原理）、交叉熵分解 CE=H+KL、交叉熵≥熵、信息质量流
   对比、信息流动速度（CNN≥RNN）、确定性防坍缩保证、FFN 可坍缩、回馈系数、
   hypothesis_verification 综合假设验证
-- ✅ **总计: 49 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/Murray.lean (2026-08-12, 5 定理)**: C1 默里定律
+  （守恒 ⟹ 比率 ρ³=1/2 即 0.79 被锁定 + 对称=维护最小）+ C2 最优深度
+  存在条件（边际收益<边际成本 ⟹ 超阈值加深必然更差 + 最优深度存在 ≤ k₀+1）
+- ✅ **总计: 54 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
