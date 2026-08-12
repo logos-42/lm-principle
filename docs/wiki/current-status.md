@@ -44,7 +44,12 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   ——每参数交互率（注意力 n²/(3d²) vs RNN n, 反超条件 3d²<n）、注意力 vs CNN
   交互数、LSTM 门控保留上界、参数信息保留对比总定理、残差参数保留、
   分形参数分配效率
-- ✅ **总计: 37 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/InfoDynamics.lean (2026-08-12, 12 定理)**: 信息动力学框架
+  ——信息熵/交叉熵/KL/变分自由能定义、**Gibbs 不等式 KL≥0**（变分自由能
+  非负 = 最小变分自由能原理）、交叉熵分解 CE=H+KL、交叉熵≥熵、信息质量流
+  对比、信息流动速度（CNN≥RNN）、确定性防坍缩保证、FFN 可坍缩、回馈系数、
+  hypothesis_verification 综合假设验证
+- ✅ **总计: 49 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
