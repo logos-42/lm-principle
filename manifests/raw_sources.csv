@@ -5,3 +5,4 @@ lmt-ssm-src,lmt-twister,,python,complex_ssm.py,D:/AI/扭量模型/LMT-twister/he
 lmt-mobius-src,lmt-twister,,python,mobius.py,D:/AI/扭量模型/LMT-twister/headless/studio/release/win-unpacked/resources/hibs_lnn/mobius.py,referenced,LmPrinciple/CNN.lean,"Möbius 约束 (纤维丛投影)"
 lmt-wiki-status,lmt-twister,,md,current-status.md,D:/AI/扭量模型/LMT-twister/docs/wiki/current-status.md,referenced,docs/wiki/current-status.md,"V34.7 状态: c4 组合缺口, 泛化瓶颈在表示→组合转化"
 shape-fractal,super-frontier-radar,,md,shape.md,docs/wiki/shape.md,compiled,docs/wiki/fractal-necessity.md,"第三季第3期: 分形必要性, 默里定律+分形Transformer+最优深度"
+paper-fractal-criticality,lm_principle,,md,paper-llm-fractal-criticality.md,docs/paper-llm-fractal-criticality.md,generated,docs/wiki/fractal-necessity.md,"LLM动力学下的数学分形临界: 论文稿 (70 定理 + 本地真实实验验证)"
