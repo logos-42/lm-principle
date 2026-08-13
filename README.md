@@ -57,9 +57,9 @@ assertions into unconditional, data-independent machine proofs.
 2. **High-dimensional structure does not collapse** (hypothesis ✓)
    — `residual_no_collapse_n`: a contractive residual `⟹` after `n` layers the
    output distance `≥ (1-c)^n ·` input distance (deterministic lower bound,
-   collapse probability `= 0`); `ffn_can_collapse`: a feedback-free FFN admits an
-   implementation that collapses to a constant — feedback (identity / gated path)
-   is *necessary* to prevent collapse.
+   collapse probability `= 0`). Feedback is a *sufficient* guarantee:
+   `ffn_can_collapse` exhibits a feedback-free FFN that collapses to a constant
+   (absence of feedback does not *guarantee* collapse, but permits it).
 
 3. **Information-flow efficiency** (hypothesis ✓)
    — RNN multiplicative memory decays `≤ |w|^t` while LSTM gated memory is
@@ -76,35 +76,52 @@ assertions into unconditional, data-independent machine proofs.
    parameter concentration (fractal allocation) ④ cross-entropy lower bound.
 
 5. **Murray's law `0.79` — full derivation** (C1 ✓)
-   — `murray_variational_optimal`: the three-term cost `C(r)=a/r⁴+b·r²` is
-   globally minimized at `r⁶=2a/b` (pure algebra, no calculus) — this *explains*
-   the experiment-one paradox: `0.79` is the variational optimum of three costs;
-   a simplified model (missing the work term) naturally fails. Flow conservation
-   `⟹ r³=r₁³+r₂³` plus symmetry `⟹ ρ³=1/2` closes the full chain.
+   — `murray_variational_optimal`: the two-term cost `C(r)=a/r⁴+b·r²` is
+   globally minimized at `r⁶=2a/b` (pure algebra, no calculus). The
+   experiment-one paradox is a *model mismatch with a precise mechanism*:
+   the original cost sum omitted the flow-conservation factor in its
+   resistance term (`Q_g = Q/2^g`); restoring it turns the global optimum
+   into an interior point converging to `2^(-1/3)` (`diagnose_murray_cost.py`:
+   `G=50` gives `0.795`, 0.13% off). Flow conservation `⟹ r³=r₁³+r₂³` plus
+   symmetry `⟹ ρ³=1/2` closes the full chain. Honest boundary: in pure
+   transport cost, branching is `2^(1/3)×` more expensive than not branching —
+   branching exists for *coverage* (space filling), and Murray's law gives the
+   optimal ratio *given* that branching is required.
 
 6. **When optimal depth holds** (C2 + C4 ✓)
    — conditions = ① strictly decreasing returns ② positive cost ③ returns
    eventually below cost `⟹` optimal depth exists and `≤ k₀+1`; if ③ fails then
-   "deeper is better" — this is the *exact necessary-and-sufficient condition* for
-   "depth is not always better". Power-law returns `Δ_k = c/(k+1)²` satisfy the
-   conditions `⟹` a finite optimal depth exists (C4 instantiated).
+   "deeper is better" — the *exact necessary-and-sufficient condition* for
+   "depth is not always better". The sharp **critical-point theorem**
+   (`CriticalPoint.lean`, `optimal_depth_is_first_crossing`): under ①–③ the
+   optimal depth is exactly `k* = min{k : Δ_k < λ}` — the first layer whose
+   marginal benefit falls below cost; for power-law returns
+   `Δ_k = c/(k+1)²` the closed form is `k* = ⌈√(c/λ)⌉ - 1`
+   (`power_law_critical_pair`, verified numerically in
+   `verify_critical_point.py`).
 
 ---
 
 ## What is formalized
 
-All in `LmPrinciple/`, verified by `lake build` (73 theorems total):
+All in `LmPrinciple/`, verified by `lake build` (**73 theorems** total):
 
 | Module | Content |
 |---|---|
-| `LmPrinciple/RNN.lean` | Closed-form linear RNN = causal convolution (any `CommSemiring`); stability `|w|<1 ⟹` bounded state |
-| `LmPrinciple/CNN.lean` | Convolution = group-algebra multiplication; translation equivariance = associativity |
-| `LmPrinciple/Transformer.lean` | `softmax` convex combination; self-attention permutation equivariant |
-| `LmPrinciple/LMT.lean` | Capacity counting (pigeonhole); complex SSM = complexified RNN; IE / EHS structures |
-| `LmPrinciple.Fractal` | Fractal necessity: `prefix_allocation_optimal`, `residual_no_collapse_n`, `ffn_can_collapse`, `murray_variational_optimal`, optimal-depth conditions, `hypothesis_verification` |
+| `RNN.lean` | Closed-form linear RNN = causal convolution (any `CommSemiring`); stability `|w|<1 ⟹` bounded state (2) |
+| `CNN.lean` | Convolution = group-algebra multiplication; translation equivariance = associativity (4) |
+| `Transformer.lean` | `softmax` convex combination; self-attention permutation equivariant (3) |
+| `LMT.lean` | Capacity counting (pigeonhole); complex SSM = complexified RNN; IE / EHS structures (7) |
+| `Fractal.lean` | Fractal necessity: `prefix_allocation_optimal`, `fractal_beats_uniform`, connection-density power law + convexity (9) |
+| `ArchCompare.lean` | `residual_no_collapse_n`, `ffn_can_collapse`, LSTM retention vs RNN decay (5) |
+| `Efficiency.lean` | Per-parameter interaction rates, attention crossover `3d²<n`, forget-gate retention (8) |
+| `InfoDynamics.lean` | Gibbs `KL≥0`, CE = H + KL, quality flow, no-collapse guarantee, feedback coefficients, `hypothesis_verification` (12) |
+| `Murray.lean` | Variational optimum `r⁶=2a/b`, flow conservation, symmetric ratio `ρ³=1/2`, optimal-depth existence, power-law instantiation (10) |
+| `Training.lean` | Scaling law, CE ≥ entropy, RLHF softmax, DPO loss ≥ 0, sparse MoE/attention bound-preserving (10) |
+| `CriticalPoint.lean` | `optimal_depth_is_first_crossing` (`k* = min{k : Δ_k < λ}`), power-law critical pair (3) |
 
-> As of 2026-08-12: `lake build` fully green, **73 theorems** machine-verified
-> (mathlib closure compiled from 1758 module sources); pre-push gate active.
+> As of 2026-08-13: `lake build` fully green, **73 theorems** machine-verified
+> (mathlib closure compiled from pinned sources); pre-push gate active.
 
 ---
 
@@ -113,14 +130,20 @@ All in `LmPrinciple/`, verified by `lake build` (73 theorems total):
 - **Assertions → theorems.** C1–C4 upgrade from "claims" to machine proofs with
   no empirical-data dependency. Experiments give numerical evidence; theorems
   give guarantees — they corroborate each other.
-- **Honest boundary handling.** The experiment-one paradox is not hidden; it is
-  *precisely explained* by the variational theorem (simplified model missing the
-  work term ⟹ `0.79` fails; three-cost model ⟹ global optimum). "Admit the
-  boundary + close it with more complete math" is the preferred scientific-writing
-  form.
-- **Reproducible pipeline.** wiki-first compilation + 54→73 verified theorems +
-  pre-push gate (verification must pass before push) — the whole argument chain is
-  reproducible, inheritable, and extensible.
+- **Honest boundary handling.** The experiment-one paradox is not hidden; its
+  mechanism is *precisely diagnosed* (missing flow-conservation factor in the
+  resistance term — `diagnose_murray_cost.py`; restoring it yields an interior
+  optimum converging to `2^(-1/3)`). "Admit the boundary + close it with more
+  complete math" is the preferred scientific-writing form.
+- **Local real experiments with honest corrections.** All three experiments
+  were reproduced locally (PyTorch CPU, seed 42, numbers within 0.01 of the
+  original), and a multi-seed rerun (`experiments_v2.py`, 3 seeds) exposed
+  what does *not* survive: fractal-vs-uniform is not significant across seeds,
+  and the "loss cliff from depth 4" is a single-run artifact — while optimal
+  depth 2 and the critical point `k* = min{k : Δ_k < λ}` are robust.
+- **Reproducible pipeline.** wiki-first compilation + 73 verified theorems +
+  pre-push gate (verification must pass before push) — the whole argument chain
+  is reproducible, inheritable, and extensible.
 
 ---
 
@@ -211,8 +234,9 @@ A **pre-push gate** ensures `lake build` is green (no `sorry` / `admit` /
 
 - ① Derivative-form variational verification (`deriv` stationarity) — pending
   `Mathlib.Analysis.Calculus`; the algebraic version already closes the argument
-- ② Closed-form `D → n*` mapping (fractal dimension → optimal depth) — current
-  theorems give *existence*, not a closed formula (open problem)
+- ② Closed-form `D → n*` mapping (fractal dimension → optimal depth) — the
+  *benefit* critical point is closed (`k* = ⌈√(c/λ)⌉ - 1`), but the mapping
+  from task fractal dimension `D` to the per-layer returns `Δ_k` remains open
 - ③ LMT-twister Main Theorem 2.1 information-theoretic proof (lemmas A.1–A.4:
   IE capacity via DPI → Fano → EHS). Mathlib weapons confirmed present:
   `Mathlib/InformationTheory/Hamming.lean` (Fano) and
@@ -222,15 +246,31 @@ A **pre-push gate** ensures `lake build` is green (no `sorry` / `admit` /
 
 - Cross-entropy / entropy are defined on finite discrete distributions (`Fin n`);
   the continuous version needs measure theory
-- C2's `D → n*` closed form remains open
+- The `D → n*` closed form (fractal dimension to depth) remains open; the
+  benefit-critical-point closed form is verified
+- Multi-seed experiments show fractal-vs-uniform performance is **not
+  significant** (3 seeds); the verified claim is parameter efficiency
+  (same performance, 25% fewer parameters), not lower loss
 
 ---
 
 ## Source
 
+- Paper (IEEE journal + conference drafts): `paper/main_jrnl.tex`,
+  `paper/main_conf.tex` — *Mathematical Fractal Criticality in LLM Dynamics*
 - LMT-twister paper `head-en.tex` / `head-zh.tex` (Appendix A, lemmas A.1–A.4)
 - Fractal-necessity argument: `LmPrinciple.Fractal` + `docs/wiki/fractal-necessity.md`
 - Architecture overview: `docs/wiki/project-overview.md`
 - Live status: `docs/wiki/current-status.md`
+- Local experiments: `experiments/run_fractal_experiments.py` +
+  `scripts/experiments_v2.py` (multi-seed honest rerun) +
+  `scripts/diagnose_murray_cost.py` (paradox diagnosis)
 
 Remote: `git@github.com:logos-42/lm-principle.git`
+
+## License
+
+This project is licensed under the **MIT License** — see [LICENSE](./LICENSE).
+The formalization (`LmPrinciple/`) is machine-verified Lean 4 code; the
+paper drafts and wiki content are original work of the authors. Lean 4,
+mathlib, and PyTorch remain under their respective licenses.

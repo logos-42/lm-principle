@@ -29,7 +29,7 @@ first principles'' of modern deep learning---RNNs as causal convolutions,
 CNNs as group-algebra multiplications, transformers as convex combinations,
 capacity as counting, and RLHF as a Gibbs corollary---as \emph{machine-verified
 theorems} in the Lean 4 proof assistant with the mathlib library. Building on
-60 fully verified theorems, we establish that (i)~fractal organization provably
+73 fully verified theorems, we establish that (i)~fractal organization provably
 dominates uniform stacking whenever per-layer free-energy decrease is strictly
 diminishing; (ii)~high-dimensional representations are guaranteed not to
 collapse if and only if a feedback path exists; (iii)~gated architectures
@@ -68,8 +68,8 @@ empirically even though their substance is mathematical.
 This paper closes that gap with a complementary methodology: we formalize the
 mathematical first principles of RNNs, CNNs, and transformers as
 \emph{machine-checkable theorems} in the Lean 4 proof assistant
-\cite{lean4,mathlib,avigad2020}. The result is a corpus of 70 formal theorems,
-60 of which are central to the present argument, each discharged by the proof
+\cite{lean4,mathlib,avigad2020}. The result is a corpus of 73 formal theorems,
+63 of which are central to the present argument, each discharged by the proof
 assistant with no \texttt{sorry} or admitted axiom.
 
 Our thesis is that a substantial part of the ``empirical folklore'' of deep
@@ -528,37 +528,42 @@ cliff rather than improvement.
 \section{Experimental Corroboration}
 \label{sec:experiments}
 The machine-verified theorems provide unconditional guarantees; experiments
-provide numerical corroboration. In three experiments \cite{shape2026}:
-(1) scanning the branching ratio confirms $\rho=0.79$ minimizes the full
-energetic cost, while $0.50$ explodes resistance and $0.90$ inflates maintenance
-by $7\times$; (2) a fractal transformer reaches nearly identical loss
-($113.61$ vs $113.62$) with $25\%$ fewer parameters ($301{,}569$ vs
-$400{,}641$); (3) optimal-depth search finds a loss cliff at depth $4$ and
-beyond. Table~\ref{table_experiments} summarizes these measurements. Each of
-these observations is consistent with, and in the fractal and depth cases
-implied by, the theorems above.
+provide numerical corroboration. We reproduced all three experiments of
+\cite{shape2026} locally (PyTorch 2.12.1, CPU, seed 42, identical model
+definitions): (1) the constrained branching ratio is pinned to
+$\rho=2^{-1/3}\approx0.79$ (the global free-scan model does not attain its
+minimum there---see Remark~\ref{rem:paradox}); (2) a fractal transformer
+reaches slightly lower loss ($113.6098$ vs.\ $113.6133$) with $25\%$ fewer
+parameters ($301{,}569$ vs.\ $400{,}641$, efficiency ratio $1.33$);
+(3) optimal-depth search finds best depth $2$ for both architectures.
+A multi-seed rerun (\texttt{scripts/experiments\_v2.py}, 3 seeds) yields an
+honest correction: fractal vs.\ uniform is \emph{not} significant across
+seeds ($86.83\pm47.17$ vs.\ $75.74\pm52.88$), and the ``loss cliff from
+depth 4'' is a single-run training artifact---but the optimal depth $2$ and
+the critical-point location $k^*=\min\{k:\Delta_k<\lambda\}=2$ are robust.
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.2}
-\caption{Empirical corroboration from the three experiments of \cite{shape2026}.}
+\caption{Local experimental corroboration (PyTorch 2.12.1, CPU).}
 \label{table_experiments}
 \centering
 \begin{tabular}{@{}ll@{}l@{}}
 \toprule
-Experiment & Setting & Outcome \\
+Experiment & Setting & Outcome (local run) \\
 \midrule
 \multirow{3}{*}{Murray's law}
- & $\rho=0.50$ (steep) & resistance $1.9\times10^{11}$ (explodes) \\
- & $\rho=0.79$ (optimal) & $r^3=r_1^3+r_2^3$, total cost min \\
- & $\rho=0.90$ (flat) & maintenance $7\times$; simplified cost lower \\
+ & constrained ratio $\rho$ & pinned to $2^{-1/3}\approx0.79$ for all $Q$ \\
+ & global free scan & minimum $\not=0.79$ (model mismatch, see Remark~\ref{rem:paradox}) \\
+ & branching vs.\ not & branching costs $2^{1/3}\times$ more (coverage motivates it) \\
 \midrule
 \multirow{2}{*}{Fractal vs.\ uniform}
- & Uniform & $400{,}641$ params, loss $113.61$ \\
- & Fractal & $301{,}569$ params, loss $113.62$ \\
+ & Uniform & $400{,}641$ params, loss $113.6133$ (single seed) \\
+ & Fractal & $301{,}569$ params, loss $113.6098$; 3-seed: not significant \\
 \midrule
-\multirow{2}{*}{Optimal depth}
- & depth 2 & best loss ($\approx9$) for both \\
- & depth $\geq4$ & loss cliff ($\geq39$) \\
+\multirow{3}{*}{Optimal depth}
+ & depth 2 & robustly optimal ($0.788\pm0.062$, 3 seeds) \\
+ & depth $\geq4$ & no cliff in 3-seed rerun (single-run artifact) \\
+ & critical point & $k^*=2$ for all $\lambda\in\{0.05,0.1,0.2\}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -566,7 +571,7 @@ Experiment & Setting & Outcome \\
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
 We presented the first machine-verified first-principles account of the
-fractal necessity and architectural efficiency of deep networks, as 60 fully
+fractal necessity and architectural efficiency of deep networks, as 73 fully
 checked Lean 4 theorems. Fractal organization dominates uniform stacking under
 diminishing returns; non-collapse is feedback-conditional; gating beats
 multiplicative memory; free-energy minimization rests on four provable

@@ -178,6 +178,26 @@ schema_version: 2
 - 对照脚本: scripts/compare_local_vs_math.py (读 JSON, 输出对照表)
 - 已推送
 
+## [2026-08-13] 会话 | 远程更新阅读 + 论文/README 中英文 + MIT 许可
+
+- 远程更新 0b9716f (并行会话): CriticalPoint.lean (3 定理, 73 总计) +
+  diagnose_murray_cost.py (悖论真根因: 阻力项漏流量守恒因子, 修正后
+  argmin→0.795) + experiments_v2.py (3 seeds: 分形 vs 均匀不显著,
+  '4层断崖'是训练假象, Δ_k 不严格递减 5/11 但 kstar=2 稳健) +
+  docstring 修正 (ffn 必要→充分, T10 合取) + 成本改称两项
+- **阅读消化**: 全部理解并吸收进论文/README
+- **论文更新** (jrnl + conf):
+  - 清理 4 处脏行 (git 提交信息误粘贴进 tex)
+  - 新增 §Multi-seed rerun: honest correction (3-seed 结论)
+  - 定理数 70→73 (63 核心)
+  - conf 实验节同步 (本地数据 + 3-seed + kstar)
+- **README 中英文更新**: ffn 充分表述、悖论机制 (流量守恒因子)、
+  CriticalPoint 闭式解 k* = ⌈√(c/λ)⌉-1、真实模块表 (11 模块)、
+  本地实验 + 3-seed 诚实修正、Roadmap ② 更新、诚实边界
+- **MIT 许可**: LICENSE 文件 + 两版 README 许可段
+- 验证: 73 定理全绿 (verify_all.sh) + 两版 tex 结构全绿
+- 已推送
+
 ## [2026-08-12] 会话 | Training.lean: RLHF/DPO/稀疏化/预训练后训练 (10 定理)
 
 - 用户指出缺失: RL (强化学习), MoE 深入, 稀疏注意力, 预训练/后训练推演

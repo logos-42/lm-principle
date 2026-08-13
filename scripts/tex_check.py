@@ -16,7 +16,6 @@ for k in set(b) | set(e):
         print(f"MISMATCH: {k} begin={b[k]} end={e[k]}")
         ok = False
 print("begin/end 配对:", "OK" if ok else "FAIL")
-
 labels = set(re.findall(r"\\label\{([^}]+)\}", s))
 refs = set(re.findall(r"\\ref\{([^}]+)\}", s))
 missing = refs - labels
