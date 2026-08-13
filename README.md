@@ -10,7 +10,7 @@ case studies are **LMT-twister** (counterfactual representation bottleneck) and
 full theorem-backed argument for why fractal organization, residual feedback, and
 optimal depth arise from first principles.
 
-**60 theorems are machine-verified** (`lake build` green, no `sorry` / `admit` /
+**73 theorems are machine-verified** (`lake build` green, no `sorry` / `admit` /
 `axiom`), guarded by a **pre-push gate** (verification must pass before any push).
 
 中文文档（Chinese documentation）：[README.zh.md](./README.zh.md)
@@ -45,7 +45,7 @@ assertions into unconditional, data-independent machine proofs.
 
 ## Verified conclusions (each backed by a Lean theorem)
 
-> 分形必要性 → 60 条机器验证定理。Every item below has a Lean theorem as its
+> 分形必要性 → 73 条机器验证定理。Every item below has a Lean theorem as its
 > backing.
 
 1. **Fractal organization beats uniform stacking** (core hypothesis ✓)
@@ -93,7 +93,7 @@ assertions into unconditional, data-independent machine proofs.
 
 ## What is formalized
 
-All in `LmPrinciple/`, verified by `lake build` (60 theorems total):
+All in `LmPrinciple/`, verified by `lake build` (73 theorems total):
 
 | Module | Content |
 |---|---|
@@ -103,7 +103,7 @@ All in `LmPrinciple/`, verified by `lake build` (60 theorems total):
 | `LmPrinciple/LMT.lean` | Capacity counting (pigeonhole); complex SSM = complexified RNN; IE / EHS structures |
 | `LmPrinciple.Fractal` | Fractal necessity: `prefix_allocation_optimal`, `residual_no_collapse_n`, `ffn_can_collapse`, `murray_variational_optimal`, optimal-depth conditions, `hypothesis_verification` |
 
-> As of 2026-08-12: `lake build` fully green, **60 theorems** machine-verified
+> As of 2026-08-12: `lake build` fully green, **73 theorems** machine-verified
 > (mathlib closure compiled from 1758 module sources); pre-push gate active.
 
 ---
@@ -118,7 +118,7 @@ All in `LmPrinciple/`, verified by `lake build` (60 theorems total):
   work term ⟹ `0.79` fails; three-cost model ⟹ global optimum). "Admit the
   boundary + close it with more complete math" is the preferred scientific-writing
   form.
-- **Reproducible pipeline.** wiki-first compilation + 54→60 verified theorems +
+- **Reproducible pipeline.** wiki-first compilation + 54→73 verified theorems +
   pre-push gate (verification must pass before push) — the whole argument chain is
   reproducible, inheritable, and extensible.
 
@@ -203,7 +203,7 @@ A **pre-push gate** ensures `lake build` is green (no `sorry` / `admit` /
 **Done**
 
 - ✅ Lean 4.21.0 + mathlib v4.21.0 environment, fully offline-pinned
-- ✅ **60 theorems** machine-verified across RNN / CNN / Transformer / LMT / Fractal
+- ✅ **73 theorems** machine-verified across RNN / CNN / Transformer / LMT / Fractal
 - ✅ Fractal-necessity argument: C1 (Murray `0.79`) and C2+C4 (optimal depth) proven
 - ✅ Wiki-first knowledge system (v2 bootstrap, lint green) + pre-push gate active
 

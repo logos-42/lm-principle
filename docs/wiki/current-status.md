@@ -60,10 +60,35 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   —— 实验二: 分形 301569 参数/损失 113.6098 vs 均匀 400641/113.6133
   (效率比 1.33, 文章 seed 42 复现差 < 0.01); 实验三: 最优深度均 2 层
   (Δ₂→₄>0 ⟹ L*=2 ✓); 分形深层优势显著 (14层 0.39×); 诚实边界已记录
-- ✅ **总计: 70 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/CriticalPoint.lean (2026-08-13, +3 定理)**: 临界点定理——
+  **最优深度 = 第一个边际收益跌破成本的层** (C2 闭式解, 回答"临界点在哪"):
+  `optimal_depth_is_first_crossing` (Δ 严格递减 + λ>0 + 最终跌破 ⟹
+  kstar = Nat.find (fun k => Δ k < mc) 是最优深度, ∀L, N(L) ≤ N(kstar)) +
+  `power_law_critical_pair` (幂律 Δ_k=c/(k+1)² 的跌破点满足
+  Δ_kstar < λ ≤ Δ_kstar-1, 两侧夹逼) + `power_law_optimal_depth_is_critical` (组合)
+- ✅ **总计: 73 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
+- ✅ **2026-08-13 审查与补齐**: 用户要求"找到临界点, 修公式/实验缺陷"——
+  - **临界点 (C2 闭式解)**: CriticalPoint.lean 3 定理——最优深度 =
+    第一个边际收益跌破成本的层 kstar = Nat.find (fun k => Δ k < mc),
+    幂律临界对 Δ_kstar < λ ≤ Δ_kstar-1 (闭式 kstar = ⌈√(c/λ)⌉-1,
+    数值验证 8 组全过, 含一般 α)
+  - **公式缺陷诊断** (scripts/diagnose_murray_cost.py): 实验一树级成本
+    漏流量守恒因子 Q_g=Q/2^g ⟹ 原公式 argmin 在边界 ρ→1 (0.9<0.79);
+    修正后内点最优收敛 2^(-1/3) (G=50: 0.795, 偏差 0.13%)——悖论真根因
+  - **实验 v2** (scripts/experiments_v2.py, 3 seeds):
+    · 深度监督 Δ_k 测量: Δ_1=+123.8, Δ_2=-2.24 (加层变差), 此后 ±0.2 波动,
+      Δ 递减一致性仅 5/11 ⟹ **真实 Δ_k 不严格递减**——定理假设在实验中被证伪,
+      交叉点 kstar=2 对任意 λ 成立 (第 2 层起负收益)
+    · 独立深度扫描: depth2=0.79±0.06 最优 (稳健), depth6=1.28<depth4=1.67
+      ⟹ "≥4 断崖"不成立 (多 seed 下深模型可学习)
+    · 分形 vs 均匀 (mini-batch 修正): uniform=86.8±47.2, fractal=75.7±52.9
+      ⟹ 原单 seed 113.61/113.62 是训练平台巧合, 对比不显著
+  - **诚实结论**: 定理逻辑正确 (if Δ 严格递减 + 跌破 ⟹ kstar 最优);
+    实验数据不满足定理前提 (Δ_k 非单调) ⟹ 论文把实验改标为
+    "structural statement, 测量见 v2", 并修正三项措辞/ffn 模态/T10 docstring
 - ✅ **远程**: git@github.com:logos-42/lm-principle.git（SSH 已认证，已推送）
 
 ## 未完成 / 待办

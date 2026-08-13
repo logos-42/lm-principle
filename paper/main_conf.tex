@@ -36,9 +36,12 @@ collapse if and only if a feedback path exists; (iii)~gated architectures
 preserve information exponentially better than multiplicative recurrent
 memories; (iv)~variational free-energy minimization rests on four specific
 information structures; and (v)~Murray's law ratio $\rho=2^{-1/3}\approx0.79$
-follows from a three-term variational optimum, explaining a known empirical
-paradox as the omission of a cardiac-work term. Every claim is discharged
-without \texttt{sorry}; numerical experiments provide corroborating evidence
+follows from a two-term variational optimum (resistance $1/r^4$ plus
+maintenance $r^2$), and the empirical paradox---$\rho=0.90$ appearing cheaper
+under the original tree-level cost---is traced to a missing flow-conservation
+factor in that formula: the corrected tree-level cost has an interior minimum
+converging to $2^{-1/3}$. Every claim is discharged
+without \\texttt{sorry}; numerical experiments provide corroborating evidence
 while the theorems provide unconditional guarantees.
 \end{abstract}
 
@@ -90,9 +93,11 @@ multiplicative RNN memory decays as $|w|^t$.
 (\S\ref{sec:fem}): the Gibbs inequality $\mathrm{KL}\ge0$, convex combinations,
 prefix-concentrated allocation, and the cross-entropy lower bound.
 \item \textbf{Murray's law is variational} (\S\ref{sec:murray}): the ratio
-$0.79$ is the global optimum of a three-term cost $C(r)=a/r^4+br^2$, and the
-commonly observed paradox follows precisely from the omission of the cardiac
-work term.
+$0.79$ is the global optimum of the two-term cost $C(r)=a/r^4+br^2$ (with the
+stationary condition $r_0^6=2a/b$ as premise), and the commonly observed
+paradox---$\rho=0.90$ cheaper than $\rho=0.79$ under the original tree-level
+cost---is traced to a missing flow-conservation factor in that formula
+(\S\ref{sec:murray}).
 \item \textbf{Optimal depth is conditional} (\S\ref{sec:depth}): finite optimal
 depth exists iff marginal benefit is strictly decreasing, cost is positive, and
 benefit eventually falls below cost; otherwise ``deeper is always better.''
@@ -179,33 +184,37 @@ bounded resource, whose optimum is set by the task's fractal dimension rather
 than by layer count, since deep stacking has diminishing marginal gains, linear
 costs, and increasing gradient degradation.
 
-Experiments in \cite{shape2026} report: scanning the branching ratio shows
-$\rho=0.79$ minimizes a simplified energetic cost, while $\rho=0.50$ explodes
-resistance and $\rho=0.90$ inflates maintenance cost $7\times$ (see
-Fig.~\ref{fig_murray}); a fractal transformer matches the loss of a uniform one
-($113.61$ vs $113.62$) with $25\%$ fewer parameters ($301{,}569$ vs $400{,}641$)
-(see Fig.~\ref{fig_fractal_params}); and an optimal-depth sweep finds a loss
-cliff from depth $4$ onward, with best depth $2$ (see Fig.~\ref{fig_depth}).
+Experiments in \cite{shape2026} report: the single-branch variational curve
+$C(\rho)=a/\rho^4+b\rho^2$ (Fig.~\ref{fig_murray}) attains its minimum at
+$\rho=2^{-1/3}$, while $\rho=0.50$ explodes resistance and $\rho=0.90$ inflates
+maintenance cost $7\times$; a fractal transformer matches the loss of a uniform
+one ($113.61$ vs $113.62$) with $25\%$ fewer parameters ($301{,}569$ vs
+$400{,}641$) (see Fig.~\ref{fig_fractal_params}); and an optimal-depth sweep
+finds best depth $2$, with deep models failing to train beyond it (see
+Fig.~\ref{fig_depth}). The tree-level sweep of the original script, however,
+makes $\rho=0.90$ appear cheaper than $\rho=0.79$---the paradox resolved in
+\S\ref{sec:murray}.
 
 \subsection{A concrete paradox}
 \label{sec:paradox-finding}
 The same experiments expose a paradox that any rigorous account must face: under
-the \emph{simplified} two-term cost used there (resistance $1/r^4$ plus
-maintenance $r^2$), $\rho=0.90$ appears cheaper than $\rho=0.79$. The narrative
-acknowledges this as a boundary of a simplified model lacking the cardiac-work
-term ($\propto$ total cross-sectional area). Rather than treating this as an
-exception to be papered over, \S\ref{sec:murray} shows it is a \emph{provable
-consequence}: the complete three-term cost has its global optimum exactly at
-$0.79$, and the paradox is exactly the omission of the third term
+the \emph{tree-level} cost used there (resistance $1/r^4$ per vessel plus
+maintenance $r^2$, summed over generations), $\rho=0.90$ appears cheaper than
+$\rho=0.79$. Rather than treating this as an exception to be papered over,
+\S\ref{sec:murray} traces it to a \emph{provable defect in the tree-level
+formula}: the resistance term omits the flow-conservation factor (each vessel
+at generation $g$ carries flow $Q/2^g$), and with that factor restored the
+tree-level cost has an interior minimum converging to $2^{-1/3}$
 (see Remark~\ref{rem:paradox}).
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig_murray.png}
 \caption{Murray's-law variational cost $C(\rho)=a/\rho^4+b\rho^2$ as a function
-of the branch ratio $\rho$. The total cost attains its global minimum exactly at
-$\rho=2^{-1/3}\approx0.79$; resistance explodes for small $\rho$ while
-maintenance grows with $\rho$.}
+of the branch ratio $\rho$ (analytic curve with $a,b$ chosen so the stationary
+condition $r_0^6=2a/b$ holds at $\rho=2^{-1/3}$; not a data scan). The total
+cost attains its global minimum exactly at $\rho=2^{-1/3}\approx0.79$;
+resistance explodes for small $\rho$ while maintenance grows with $\rho$.}
 \label{fig_murray}
 \end{figure}
 
@@ -214,17 +223,26 @@ maintenance grows with $\rho$.}
 \includegraphics[width=\columnwidth]{fig_fractal_params.png}
 \caption{A fractal transformer matches the loss of a uniform one
 ($113.61$ vs $113.62$) with $25\%$ fewer parameters ($301{,}569$ vs $400{,}641$).
-By theorem~\ref{thm:prefix}, this is a consequence of concentrating the budget
-on the prefix under diminishing per-layer returns.}
+Caution: on this task both models stay close to the constant-predictor baseline
+($\approx113.8$), i.e.\ neither learns the (trivial) target well; the equal-loss
+comparison is a near-plateau match, and the $25\%$ saving is an empirical
+property of the architecture choices, not a direct consequence of
+theorem~\ref{thm:prefix} (whose hypothesis of strictly decreasing per-layer
+marginal benefit is not measured here).}
 \label{fig_fractal_params}
 \end{figure}
 
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\columnwidth]{fig_depth.png}
-\caption{Optimal-depth sweep (illustrative reconstruction). Loss is minimized at
-depth $2$ and exhibits a sharp cliff from depth $4$ onward, consistent with the
-finite-optimal-depth condition of theorem~\ref{thm:depth}.}
+\caption{Optimal-depth sweep (illustrative reconstruction; single seed per
+point, middle depths not reproducible across runs---see
+scripts/experiments\_v2.py for a multi-seed rerun). Loss is minimized at
+depth $2$ for both architectures; deeper models fail to train on this setup
+and plateau near the constant-predictor loss, which reads as a ``cliff'' only
+in aggregate. The finite-optimal-depth condition of theorem~\ref{thm:depth} is
+a structural statement; measuring the marginal benefits $\Delta_k$ directly is
+done in the multi-seed rerun.}
 \label{fig_depth}
 \end{figure}
 
@@ -234,8 +252,8 @@ From these findings we extract four structural hypotheses, each of which we
 will promote to a theorem in the sections that follow:
 \begin{enumerate}
 \item \textbf{(C1) Murray's law is a variational optimum}: the ratio
-$\rho=2^{-1/3}$ minimizes a three-term energetic cost under flow conservation
-and symmetric branching. \textnormal{(\S\ref{sec:murray})}
+$\rho=2^{-1/3}$ minimizes the two-term cost $C(r)=a/r^4+br^2$ under flow
+conservation and symmetric branching. \textnormal{(\S\ref{sec:murray})}
 \item \textbf{(C2) Optimal depth is finite under diminishing returns}: marginal
 benefit strictly decreasing, positive cost, and benefit eventually below cost
 imply a finite optimal depth. \textnormal{(\S\ref{sec:depth})}
@@ -423,14 +441,16 @@ free-energy minimization (\texttt{training\_unified}).
 \label{sec:murray}
 Murray's law states that optimal vascular branching satisfies
 $r^3=r_1^3+r_2^3$. We derive it, and the celebrated ratio
-$\rho=2^{-1/3}\approx0.79$, from a three-term cost.
+$\rho=2^{-1/3}\approx0.79$, from a two-term cost (resistance $1/r^4$ plus
+maintenance $r^2$); the stationary-point condition $r_0^6=2a/b$ is taken as a
+premise, its derivative form being deferred to calculus.
 
 \begin{theorem}[variational optimum of Murray's law]
 \label{thm:murray}
-With cost $C(r)=a/r^4+br^2$ ($a,b>0$), the unique global minimum is attained at
-$r_0^6=2a/b$; moreover $C(r_0)\le C(r)$ for all $r>0$, and flow conservation
-forces $r^3=r_1^3+r_2^3$, which under symmetric branching yields
-$(r_0/r)^3=1/2$, i.e.\ $\rho=2^{-1/3}$.
+With cost $C(r)=a/r^4+br^2$ ($a,b>0$) and $r_0^6=2a/b$ (stationary condition),
+$r_0$ is a global minimizer: $C(r_0)\le C(r)$ for all $r>0$. Flow
+conservation ($r^3=cQ$, $Q=Q_1+Q_2$) forces $r^3=r_1^3+r_2^3$, which under
+symmetric branching yields $(r_0/r)^3=1/2$, i.e.\ $\rho=2^{-1/3}$.
 \end{theorem}
 
 \begin{proof}
@@ -446,13 +466,21 @@ Flow conservation ($Q=Q_1+Q_2$) yields the cubic law
 
 \begin{remark}[The empirical paradox]
 \label{rem:paradox}
-The commonly reported paradox---that a simplified cost omitting a cardiac-work
-term makes $\rho=0.79$ non-optimal while $0.90$ looks better---is not an
-anomaly to be masked. It is exactly predicted by
-theorem~\ref{thm:murray}: the simplified two-term model lacks the
-cardiac-work term ($\propto$ total cross-sectional area), so its optimum shifts.
-Under the complete three-term cost, $0.79$ is the global optimum. This is the
-honest resolution of the paradox.
+The commonly reported paradox---that the original tree-level sweep makes
+$\rho=0.90$ appear cheaper than $\rho=0.79$---is not an anomaly to be masked,
+and its explanation is not a third cost term. Reproducing the original
+tree-level formula (scripts/diagnose\_murray\_cost.py) shows its resistance
+term $\sum_g 2^g/r_g^4$ omits the flow-conservation factor: in a symmetric
+tree each vessel at generation $g$ carries flow $Q/2^g$, so the correct
+per-generation resistance is $\sum_g (2\rho^4)^{-g}$ rather than
+$\sum_g (2/\rho^4)^g$. Without the factor the resistance sum explodes for small
+$\rho$ and the cost is minimized at the boundary $\rho\to1$. With flow
+conservation restored, the corrected cost has an interior minimum that
+converges to $2^{-1/3}$ as the number of generations grows ($G{=}50$:
+$0.795$, within $0.13\%$). The variational optimum of
+theorem~\ref{thm:murray} is the $G\to\infty$ limit of this corrected
+tree-level cost; the cardiac-work term is not needed for this resolution and
+remains unmodeled.
 \end{remark}
 
 \section{When Is Optimal Depth Finite?}
@@ -467,6 +495,20 @@ benefit eventually falls below cost, i.e.\ $\exists k_0,\ \forall k\ge k_0,\
 \Delta_k<\lambda$, then the optimal depth exists and is at most $k_0+1$. If
 (iii) fails, ``deeper is always better.''
 \end{theorem}
+
+\begin{remark}[Where exactly is the optimum?]
+\label{rem:critical}
+Condition (i) is not needed for existence (the Lean proof of
+\texttt{optimal\_depth\_exists} uses only (ii) and (iii)). It is used by the
+sharp critical-point theorem \texttt{optimal\_depth\_is\_first\_crossing}
+(\texttt{CriticalPoint.lean}): under (i)--(iii), the optimal depth is exactly
+$k^*=\min\{k:\Delta_k<\lambda\}$---the first layer whose marginal benefit falls
+below cost. Before $k^*$ each layer adds net benefit ($\Delta_k\ge\lambda$);
+from $k^*$ on each layer loses net benefit ($\Delta_k<\lambda$). For the
+power-law case $\Delta_k=c/(k+1)^2$, the critical pair
+$\Delta_{k^*}<\lambda\le\Delta_{k^*-1}$ locates the crossing
+(\texttt{power\_law\_critical\_pair}).
+\end{remark}
 
 \begin{proof}
 This is \texttt{optimal\_depth\_exists} in \texttt{Murray.lean}, with the
@@ -533,8 +575,9 @@ precise existence condition. The approach upgrades hypotheses C1--C4 from
 conjectures to theorems, and turns an empirical paradox into a provable
 implication.
 
-\emph{Limitations.} The derivative (stationary-point) form of the three-term
-cost is not yet verified (only the algebraic closed form); the mapping from
+\emph{Limitations.} The derivative (stationary-point) form of the two-term
+cost is not yet verified (only the algebraic closed form with $r_0^6=2a/b$ as
+premise); the mapping from
 fractal dimension $D$ to the concrete optimal depth $n^*$ remains an open
 problem (our theorem gives existence, not a closed form); and entropy,
 cross-entropy, and KL are formalized on finite distributions only. These are

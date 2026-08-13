@@ -20,4 +20,5 @@ import LmPrinciple.ArchCompare
 import LmPrinciple.Efficiency
 import LmPrinciple.InfoDynamics
 import LmPrinciple.Murray
+import LmPrinciple.CriticalPoint
 import LmPrinciple.Training

@@ -12,6 +12,7 @@ schema_version: 2
 
 | 日期 | 类型 | 主题 | 要点 |
 |------|------|------|------|
+| 2026-08-13 | 审查+补齐 | 实验论证审查: 找到临界点, 修公式/实验缺陷 | 审查结论: 定理层严谨, 声明层 6 处失真 (三项措辞/悖论解决无支撑/ffn 模态/hypothesis_verification docstring/深度定理未用条件(i)/1D 形式化)。补齐: ①新模块 CriticalPoint.lean 3 定理 (总计 70→73): 临界点定理 (最优深度 = 第一个 Δ_k<λ 的层, 精确闭式), 幂律临界点对 (Δ_kstar<λ≤Δ_kstar-1), 组合定理 ②实验一公式缺陷根因: 树级成本漏流量守恒因子 Q_g=Q/2^g, 修正后最优收敛 2^(-1/3) (G=50: 0.795, 偏差 0.13%), 见 diagnose_murray_cost.py ③实验 v2 多 seed + 深度监督 Δ_k 测量 (experiments_v2.py) ④闭式公式数值验证 (verify_critical_point.py) ⑤论文 two-term 措辞修正 + Remark 悖论真解决 ⑥docstring 修补 (ffn 必要→充分, T10 合取修正)。 |
 | 2026-08-12 | 启动 | 初始化知识系统 | 建立 wiki、manifest、检查脚本和 repo 级默认规则。 |
 | 2026-08-12 | 环境 | mathlib 按需配置 | 修正 lean-toolchain v4.34.0-rc1→v4.21.0（匹配 mathlib rev 308445d，见 setup_mathlib.sh）；按需 olean：`lake exe cache get <Module>`，全量 1.5GB+ → 按需 63 个文件（.lake 共 870M）；项目 lake build 通过，omega/norm_num 可用。 |
 
@@ -212,6 +213,6 @@ schema_version: 2
   - fig_fractal_params: 分形 vs 均匀 -25% 参数、损失几乎相等 (113.61 vs 113.62)
   - fig_depth: 真实逐点数据 depth=[2,4,6,8,10,14,18]，深度2最优、≥4断崖
 - **引用自检**: 会议版/期刊版全部 `\ref` 无悬空（脚本校验），图/表/定理/Remark 均在正文被引用
-- **作者**: Yuanjie Liu, yuanjieliu65@gmail.com（无机构）
+- **作者**: Yuanjie Liu, yuanjieliu65@gmail.com
 - **遗留**: 本机无 LaTeX 未编译验证（待 Overleaf）；`shape2026` 引用 URL 仍是 example.com 占位，待真实链接
 - 本次会话一并提交推送

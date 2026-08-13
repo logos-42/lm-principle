@@ -8,7 +8,7 @@
 **分形必要性**——涵盖容量计数、IE / EHS 结构，以及一条完整、有定理背书的
 论证：为何分形组织、残差回馈与最优深度从第一性原理涌现。
 
-**60 条定理已机器验证**（`lake build` 全绿，无 `sorry` / `admit` / `axiom`），
+**73 条定理已机器验证**（`lake build` 全绿，无 `sorry` / `admit` / `axiom`），
 并由 **pre-push 门禁** 守护（验证通过才允许推送）。
 
 英文主文档：[README.md](./README.md)
@@ -34,7 +34,7 @@
 
 ## 已验证结论（每条都有 Lean 定理背书）
 
-> 分形必要性 → 60 条机器验证定理。以下每条均由 Lean 定理背书。
+> 分形必要性 → 73 条机器验证定理。以下每条均由 Lean 定理背书。
 
 1. **分形组织比均匀堆叠更快**（核心假设 ✓）
    — `prefix_allocation_optimal` / `fractal_beats_uniform`：只要每层自由能下降量 `Δ_k` 严格递减，预算集中前缀（分形稀疏）的总收益 `≥` 均匀平摊——"分形省 25% 参数"不是巧合，是定理。
@@ -58,7 +58,7 @@
 
 ## 已形式化内容
 
-全部位于 `LmPrinciple/`，经 `lake build` 验证（合计 60 条定理）：
+全部位于 `LmPrinciple/`，经 `lake build` 验证（合计 73 条定理）：
 
 | 模块 | 内容 |
 |---|---|
@@ -68,7 +68,7 @@
 | `LmPrinciple/LMT.lean` | 容量计数（鸽巢原理）；复 SSM = RNN 复化；IE / EHS 模型结构 |
 | `LmPrinciple.Fractal` | 分形必要性：`prefix_allocation_optimal`、`residual_no_collapse_n`、`ffn_can_collapse`、`murray_variational_optimal`、最优深度条件、`hypothesis_verification` |
 
-> 截至 2026-08-12：`lake build` 全绿，**60 条定理**全部机器验证
+> 截至 2026-08-12：`lake build` 全绿，**73 条定理**全部机器验证
 > （mathlib 闭包 1758 模块源码编译）；pre-push 门禁生效。
 
 ---
@@ -77,7 +77,7 @@
 
 - **断言 → 定理**：C1–C4 从"断言"升级为无条件、无经验数据依赖的机器证明。实验提供数值证据，定理提供保证，两者互证。
 - **最诚实的一环**：实验一的悖论没有掩盖，而是被变分定理精确解释——简化模型缺做功项 ⟹ `0.79` 不成立；三项成本模型 ⟹ 全局最优。"承认边界 + 用更完整的数学闭合"是科学写作的最优形态。
-- **可复现流水线**：wiki-first 编译 + 54→60 条定理全验证 + pre-push 门禁（验证无错误才能推送）——整个论证链可复现、可继承、可扩展。
+- **可复现流水线**：wiki-first 编译 + 54→73 条定理全验证 + pre-push 门禁（验证无错误才能推送）——整个论证链可复现、可继承、可扩展。
 
 ---
 
@@ -158,7 +158,7 @@ python3 scripts/untracked_raw_check.py     # 查找漏登 raw
 **已完成**
 
 - ✅ Lean 4.21.0 + mathlib v4.21.0 环境，全离线物化
-- ✅ **60 条定理**机器验证，覆盖 RNN / CNN / Transformer / LMT / Fractal
+- ✅ **73 条定理**机器验证，覆盖 RNN / CNN / Transformer / LMT / Fractal
 - ✅ 分形必要性论证：C1（默里 `0.79`）与 C2+C4（最优深度）已证
 - ✅ Wiki-first 知识系统（v2 bootstrap，lint 全绿）+ pre-push 门禁生效
 
