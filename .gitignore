@@ -3,3 +3,5 @@
 /clone_deps.log
 /deepen.log
 /pin*.log
+/experiments/results/
+/experiments/__pycache__/
