@@ -55,6 +55,11 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 - ✅ **LmPrinciple/Murray.lean §3-4 + Fractal.lean (2026-08-12, +6 定理)**: 三项成本完整变分证明
   （murray_variational_optimal 全局最小, 纯代数）+ 流量守恒 + C1 完整链 +
   C3 连接密度凸性 + C4 幂律收益 ⟹ 最优深度存在
+- ✅ **本地真实实验验证 (2026-08-13)**: experiments/run_fractal_experiments.py
+  (torch 2.12.1+cpu, seed 42, 与文章代码一致) + scripts/compare_local_vs_math.py
+  —— 实验二: 分形 301569 参数/损失 113.6098 vs 均匀 400641/113.6133
+  (效率比 1.33, 文章 seed 42 复现差 < 0.01); 实验三: 最优深度均 2 层
+  (Δ₂→₄>0 ⟹ L*=2 ✓); 分形深层优势显著 (14层 0.39×); 诚实边界已记录
 - ✅ **总计: 70 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
