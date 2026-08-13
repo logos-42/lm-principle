@@ -5,6 +5,11 @@
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{multirow}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+% proofs already end with a manual \hfill$\square$; disable amsthm's automatic QED
+\renewcommand{\qedsymbol}{}
 \ifCLASSINFOpdf
 \else
 \fi
