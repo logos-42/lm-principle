@@ -5,3 +5,4 @@
 /pin*.log
 /experiments/results/
 /experiments/__pycache__/
+/scripts/__pycache__/
