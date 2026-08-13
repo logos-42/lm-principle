@@ -36,8 +36,8 @@ as \emph{machine-verified theorems} in the Lean 4 proof assistant with the
 mathlib library. RNNs are causal convolutions; CNNs are group-algebra
 multiplications (translation equivariance \emph{is} associativity); transformer
 attention is a convex combination; capacity is a counting argument; and the
-RLHF-optimal policy is a softmax (a Gibbs corollary). Building on 70 fully
-verified theorems (60 central to this argument, none with \texttt{sorry}), we
+RLHF-optimal policy is a softmax (a Gibbs corollary). Building on 73 fully
+verified theorems (63 central to this argument, none with \texttt{sorry}), we
 establish five results: (i)~fractal organization provably dominates uniform
 stacking whenever the per-layer free-energy decrease is strictly diminishing;
 (ii)~high-dimensional representations are guaranteed not to collapse if and
@@ -88,8 +88,8 @@ empirically even though their substance is mathematical.
 This article closes that gap with a complementary methodology: we formalize the
 mathematical first principles of RNNs, CNNs, and transformers as
 \emph{machine-checkable theorems} in the Lean 4 proof assistant
-\cite{lean4,mathlib,avigad2020}. The result is a corpus of 70 formal theorems,
-60 of which are central to the present argument, each discharged by the proof
+\cite{lean4,mathlib,avigad2020}. The result is a corpus of 73 formal theorems,
+63 of which are central to the present argument, each discharged by the proof
 assistant with no \texttt{sorry} or admitted axiom.
 
 Our thesis is that a substantial part of the ``empirical folklore'' of deep
@@ -801,13 +801,15 @@ $14$, consistent with power-law connection sparsity.
 
 \emph{Limitations.} The derivative (stationary-point) form of the two-term
 cost is not yet verified (only the algebraic closed form with $r_0^6=2a/b$ as
-premise); the mapping from
-fractal dimension $D$ to the concrete optimal depth $n^*$ remains an open
-problem (our theorem gives existence, not a closed form); and entropy,
+premise); the critical-point theorem
+\S\ref{sec:depth} gives the optimal depth as the first crossing
+$k^*=\min\{k:\Delta_k<\lambda\}$ under the diminishing-returns assumption
+(i), but the mapping from fractal dimension $D$ to a concrete closed-form
+$n^*(D)$ (without measuring $\Delta_k$) remains open; and entropy,
 cross-entropy, and KL are formalized on finite distributions only. These are
 honest boundaries of the current corpus. Future work includes the
-measure-theoretic extension, the stationary-point verification, and the closed
-form $n^*(D)$ linking fractal dimension to optimal depth.
+measure-theoretic extension, the stationary-point verification, and a
+closed form $n^*(D)$ linking fractal dimension directly to optimal depth.
 
 \appendices
 \section{Theorem Corpus and Module Map}
@@ -842,6 +844,9 @@ Gibbs inequality & \texttt{InfoDynamics} & \texttt{gibbs\_inequality} \\
 Cross-entropy lower bound & \texttt{InfoDynamics} & \texttt{cross\_entropy\_ge\_entropy} \\
 Murray variational optimal & \texttt{Murray} & \texttt{murray\_variational\_optimal} \\
 Optimal depth exists & \texttt{Murray} & \texttt{optimal\_depth\_exists} \\
+Critical-point = first crossing & \texttt{CriticalPoint} & \texttt{optimal\_depth\_is\_first\_crossing} \\
+Power-law critical pair & \texttt{CriticalPoint} & \texttt{power\_law\_critical\_pair} \\
+Power-law optimal depth is critical & \texttt{CriticalPoint} & \texttt{power\_law\_optimal\_depth\_is\_critical} \\
 RLHF = softmax & \texttt{Training} & \texttt{rlhf\_policy\_is\_distribution} \\
 \bottomrule
 \end{tabular}

@@ -544,6 +544,7 @@ honest correction: fractal vs.\ uniform is \emph{not} significant across
 seeds ($86.83\pm47.17$ vs.\ $75.74\pm52.88$), and the ``loss cliff from
 depth 4'' is a single-run training artifact---but the optimal depth $2$ and
 the critical-point location $k^*=\min\{k:\Delta_k<\lambda\}=2$ are robust.
+Table~\ref{table_experiments} summarizes these measurements.
 
 \begin{table}[!t]
 \renewcommand{\arraystretch}{1.2}
@@ -585,9 +586,11 @@ implication.
 
 \emph{Limitations.} The derivative (stationary-point) form of the two-term
 cost is not yet verified (only the algebraic closed form with $r_0^6=2a/b$ as
-premise); the mapping from
-fractal dimension $D$ to the concrete optimal depth $n^*$ remains an open
-problem (our theorem gives existence, not a closed form); and entropy,
+premise); the critical-point theorem
+\S\ref{sec:depth} gives the optimal depth as the first crossing
+$k^*=\min\{k:\Delta_k<\lambda\}$ under diminishing returns (i), but the mapping
+from fractal dimension $D$ to a concrete closed-form $n^*(D)$ without measuring
+$\Delta_k$ remains open; and entropy,
 cross-entropy, and KL are formalized on finite distributions only. These are
 honest boundaries of the current corpus.
 
