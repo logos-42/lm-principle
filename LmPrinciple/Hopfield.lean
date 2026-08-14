@@ -234,4 +234,144 @@ theorem hopfield_update_eq_attn {n : ℕ} (hn : 0 < n) (β : ℝ) (hβ : β ≠ 
     ring
   rw [← hinner]
 
+/-- **softmax 权重集中性 (β 分岔的定量形式)**: 若模式 i 与所有其他模式的
+    得分差 ≥ Δ (唯一最对齐, hgap), 则非目标权重指数小:
+    w_j ≤ e^{-Δ} (∀ j ≠ i)。这是 E3 实验 (β 增大 → 重叠锁定 1.000) 的
+    数学核心: 得分差越大权重越集中, 无需极限论证——对任意有限得分
+    都成立。证明: w_j = e^{s_j}/D ≤ e^{s_j}/e^{s_i} = e^{-(s_i-s_j)} ≤ e^{-Δ}。 -/
+theorem softmax_weight_concentration {n : ℕ} (hn : 0 < n) (Δ : ℝ) (s : Fin n → ℝ) (i : Fin n)
+    (hΔ : 0 < Δ)
+    (hgap : ∀ j : Fin n, j ≠ i → s i - s j ≥ Δ) :
+    ∀ j : Fin n, j ≠ i → Transformer.softmaxWeight s j ≤ Real.exp (-Δ) := by
+  intro j hj
+  unfold Transformer.softmaxWeight
+  let D : ℝ := ∑ j', Real.exp (s j')
+  have hD : 0 < D := by
+    haveI : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
+    exact Finset.sum_pos (fun _ _ => Real.exp_pos _) Finset.univ_nonempty
+  -- e^{s_j} ≤ e^{-Δ}·e^{s_i} (hgap: s_i - s_j ≥ Δ)
+  have hnum : Real.exp (s j) ≤ Real.exp (-Δ) * Real.exp (s i) := by
+    have hle : s j ≤ -Δ + s i := by linarith [hgap j hj]
+    have hmid : Real.exp (s j) ≤ Real.exp (-Δ + s i) := (Real.exp_le_exp).mpr hle
+    rw [Real.exp_add] at hmid
+    simpa using hmid
+  -- e^{s_i} ≤ D (单项 ≤ 全和, 其他项 ≥ 0)
+  have hsingle : Real.exp (s i) ≤ D := by
+    simpa [D] using (Finset.single_le_sum (fun j' hj' => le_of_lt (Real.exp_pos (s j')))
+      (Finset.mem_univ i))
+  -- e^{s_j} ≤ e^{-Δ}·D
+  have hnum2 : Real.exp (s j) ≤ Real.exp (-Δ) * D := by
+    have he1 : Real.exp (-Δ) * Real.exp (s i) ≤ Real.exp (-Δ) * D :=
+      mul_le_mul_of_nonneg_left hsingle (le_of_lt (Real.exp_pos (-Δ)))
+    nlinarith [hnum, he1]
+  -- w_j = e^{s_j}/D ≤ e^{-Δ}·D/D = e^{-Δ}
+  have hdiv : Real.exp (s j) / D ≤ Real.exp (-Δ) := by
+    have hd' : Real.exp (s j) / D ≤ (Real.exp (-Δ) * D) / D :=
+      div_le_div_of_nonneg_right hnum2 (le_of_lt hD)
+    have hcancel : (Real.exp (-Δ) * D) / D = Real.exp (-Δ) := by
+      field_simp [ne_of_gt hD]
+    rwa [hcancel] at hd'
+  simpa [D] using hdiv
+
+/-- **Hopfield 检索锁定误差界 (β 分岔定理)**: 若模式 i 唯一最对齐且差距 ≥ Δ
+    (x·X_i - x·X_j ≥ Δ), 则 Hopfield 更新输出指数逼近 X_i:
+    |x_new - X_i| ≤ n·e^{-βΔ}·M, 其中 M 是存储模式的直径上界
+    (∀j, |X_j - X_i| ≤ M)。β 或 Δ 增大 ⟹ 误差指数衰减 ⟹ 检索锁定
+    (E3 实验: β ≥ 9.6 时重叠 = 1.000 的理论形式)。
+    证明: 凸组合权重集中 (softmax_weight_concentration) + 三角不等式。 -/
+theorem hopfield_retrieval_error_bound {n : ℕ} (hn : 0 < n) (β Δ M : ℝ) (X : Fin n → ℝ) (x : ℝ) (i : Fin n)
+    (hβ : 0 < β) (hΔ : 0 < Δ) (hM : 0 ≤ M)
+    (hgap : ∀ j : Fin n, j ≠ i → x * X i - x * X j ≥ Δ)
+    (hbound : ∀ j : Fin n, |X j - X i| ≤ M) :
+    |hopfieldUpdate β X x - X i| ≤ (n : ℝ) * Real.exp (-β * Δ) * M := by
+  let w : Fin n → ℝ := fun j => Transformer.softmaxWeight (fun j' => β * x * X j') j
+  have hw0 : ∀ j : Fin n, 0 ≤ w j := fun j =>
+    le_of_lt (Transformer.softmaxWeight_pos hn (fun j' => β * x * X j') j)
+  have hwsum : (∑ j, w j) = 1 := Transformer.softmax_sum_eq_one hn (fun j' => β * x * X j')
+  -- 用 w_j ≤ e^{-βΔ} (j ≠ i): score = fun j => β*x*X_j, 差 ≥ βΔ
+  have hconc := softmax_weight_concentration hn (β * Δ) (fun j' => β * x * X j') i
+    (mul_pos hβ hΔ) (by
+      intro j hj
+      have hd : Δ ≤ x * X i - x * X j := hgap j hj
+      have hb0 : β * Δ ≤ β * (x * X i - x * X j) :=
+        mul_le_mul_of_nonneg_left hd (le_of_lt hβ)
+      have hb : β * Δ ≤ β * x * X i - β * x * X j := by
+        nlinarith [hb0]
+      -- 目标: β*x*X i - β*x*X j ≥ β*Δ (concentration 的 s i - s j)
+      nlinarith)
+  -- 恒等式: hopfieldUpdate - X_i = Σ_j w_j (X_j - X_i)
+  have hiden : hopfieldUpdate β X x - X i = ∑ j, w j * (X j - X i) := by
+    calc
+      hopfieldUpdate β X x - X i
+          = (∑ j, w j * X j) - X i := by
+              unfold hopfieldUpdate
+              rfl
+      _ = (∑ j, w j * X j) - (∑ j, w j) * X i := by
+              rw [hwsum]
+              ring
+      _ = ∑ j, (w j * X j - w j * X i) := by
+              rw [Finset.sum_mul]
+              rw [← Finset.sum_sub_distrib]
+      _ = ∑ j, w j * (X j - X i) := by
+              apply Finset.sum_congr rfl
+              intro j hj
+              ring
+  -- |Σ w_j (X_j - X_i)| ≤ Σ w_j |X_j - X_i| ≤ Σ w_j M ≤ n·e^{-βΔ}·M
+  have htri : |∑ j, w j * (X j - X i)| ≤ ∑ j, w j * |X j - X i| := by
+    calc
+      |∑ j, w j * (X j - X i)| ≤ ∑ j, |w j * (X j - X i)| := abs_sum_le_sum_abs _ _
+      _ = ∑ j, w j * |X j - X i| := by
+              apply Finset.sum_congr rfl
+              intro j hj
+              rw [abs_mul, abs_of_nonneg (hw0 j)]
+  have hb2 : (∑ j, w j * |X j - X i|) ≤ (∑ j, w j * M) := by
+    apply Finset.sum_le_sum
+    intro j hj
+    exact mul_le_mul_of_nonneg_left (hbound j) (hw0 j)
+  have hb3 : (∑ j, w j * M) = M := by
+    rw [← Finset.sum_mul]
+    rw [hwsum]
+    ring
+  -- Σ_{j≠i} w_j ≤ (n-1)·e^{-βΔ} ≤ n·e^{-βΔ}: 用于 Σ_j w_j |X_j - X_i| 中 i 项为零
+  have hsplit : (∑ j, w j * |X j - X i|) = ∑ j in Finset.univ.erase i, w j * |X j - X i| := by
+    -- i 项: w_i * |X_i - X_i| = 0
+    calc
+      (∑ j, w j * |X j - X i|) = w i * |X i - X i| + ∑ j in Finset.univ.erase i, w j * |X j - X i| := by
+          rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i) (fun j => w j * |X j - X i|),
+              univ_diff_singleton_erase i]
+      _ = ∑ j in Finset.univ.erase i, w j * |X j - X i| := by simp
+  have hne_le : (∑ j in Finset.univ.erase i, w j * |X j - X i|)
+      ≤ (n : ℝ) * Real.exp (-β * Δ) * M := by
+    calc
+      (∑ j in Finset.univ.erase i, w j * |X j - X i|)
+          ≤ (∑ j in Finset.univ.erase i, w j * M) := by
+              apply Finset.sum_le_sum
+              intro j hj
+              have hjn : j ≠ i := (Finset.mem_erase.mp hj).1
+              exact mul_le_mul_of_nonneg_left (hbound j) (hw0 j)
+      _ = (∑ j in Finset.univ.erase i, w j) * M := by
+              rw [← Finset.sum_mul]
+      _ ≤ (∑ j in Finset.univ.erase i, Real.exp (-β * Δ)) * M := by
+              have hsumle : (∑ j in Finset.univ.erase i, w j) ≤ ∑ j in Finset.univ.erase i, Real.exp (-β * Δ) := by
+                apply Finset.sum_le_sum
+                intro j hj
+                have hjn : j ≠ i := (Finset.mem_erase.mp hj).1
+                simpa [neg_mul] using hconc j hjn
+              exact mul_le_mul_of_nonneg_right hsumle hM
+      _ = ((Finset.univ.erase i).card : ℝ) * Real.exp (-β * Δ) * M := by
+              simp [Finset.sum_const, nsmul_eq_mul]
+      _ ≤ (n : ℝ) * Real.exp (-β * Δ) * M := by
+              have hcard : (Finset.univ.erase i).card ≤ n := by
+                simpa using (Finset.card_le_univ (Finset.univ.erase i) :
+                  (Finset.univ.erase i).card ≤ Fintype.card (Fin n))
+              have hc : ((Finset.univ.erase i).card : ℝ) ≤ (n : ℝ) := by exact_mod_cast hcard
+              have he : 0 ≤ Real.exp (-β * Δ) * M := mul_nonneg (le_of_lt (Real.exp_pos (-β * Δ))) hM
+              nlinarith
+  -- 组装
+  rw [hiden]
+  calc
+    |∑ j, w j * (X j - X i)| ≤ ∑ j, w j * |X j - X i| := htri
+    _ = ∑ j in Finset.univ.erase i, w j * |X j - X i| := hsplit
+    _ ≤ (n : ℝ) * Real.exp (-β * Δ) * M := hne_le
+
 end Hopfield

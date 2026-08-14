@@ -21,4 +21,4 @@ for f in $FILES; do
   TOTAL=$((TOTAL + c))
 done
 echo "TOTAL: $TOTAL 条"
-[ "$TOTAL" -ge 77 ] && echo "RESULT: ALL-PASS" && exit 0 || { echo "RESULT: 定理数异常"; exit 1; }
+[ "$TOTAL" -ge 79 ] && echo "RESULT: ALL-PASS" && exit 0 || { echo "RESULT: 定理数异常"; exit 1; }

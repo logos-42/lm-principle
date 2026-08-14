@@ -80,7 +80,12 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   E4 逐层 Hopfield 能量 ΔE_k 全正仅 3/5 (β=1) / 2/5 (β=10) ⟹ **能量度量下
   依然不递减**——强化上轮结论: 最优深度定理的"收益严格递减"前提在
   真实网络 (loss 度量 + 能量度量) 下均不成立
-- ✅ **总计: 77 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/Hopfield.lean β 分岔定理 (2026-08-13, +2 定理, 总计 77→79)**:
+  `softmax_weight_concentration` (得分差 ≥ Δ ⟹ 非目标权重 w_j ≤ e^{-Δ},
+  无需极限论证的定量集中性) + `hopfield_retrieval_error_bound` (检索锁定
+  误差界: |x_new - X_i| ≤ n·e^{-βΔ}·M——β/Δ 增大 ⟹ 指数锁定, E3 实验
+  β≥9.6 重叠=1.000 的理论形式; 凸组合权重集中 + 三角不等式)
+- ✅ **总计: 79 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
