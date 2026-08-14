@@ -94,6 +94,15 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   随机基线 4.51——真实学习): ΔE_k 全正仅 1/3 (β=1 和 10) ⟹ **排除合成任务
   伪影, 负面结论在真实 LM 上成立**。诚实标注: E5 模型欠训练 (full-batch),
   E6 单 seed。
+- ✅ **LmPrinciple/Maxwell.lean (2026-08-13, +4 定理, 总计 79→83)**: 麦克斯韦
+  方程 × 现有数学 —— 1D 周期格点 (ZMod N, 真模减法——修正 Fin 截断减法缺陷):
+  `cross_term_zero` (交叉项 telescoping: 离散乘积法则 Σ(ΔE)B+ΣE(ΔB)=0) +
+  `maxwell_energy_conservation` (无质量场能量守恒 dH/dt=0) +
+  `massive_energy_decay` (质量项 dH/dt=-m²ΣE²) +
+  `massive_energy_non_increasing` (能量非增预言)。
+  **预言**: 用户假设 m_G=√3·M₀ ⟹ 能量时间常数 τ_G = 1/(6M₀²) (条件性预言,
+  论文 §sec:maxwell)。诚实标注: 验证的是格点代数能量结构, 连续极限待 Analysis。
+- ✅ **总计: 83 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿

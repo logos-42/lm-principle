@@ -22,4 +22,5 @@ import LmPrinciple.InfoDynamics
 import LmPrinciple.Murray
 import LmPrinciple.CriticalPoint
 import LmPrinciple.Hopfield
+import LmPrinciple.Maxwell
 import LmPrinciple.Training

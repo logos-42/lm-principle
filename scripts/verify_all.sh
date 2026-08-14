@@ -6,7 +6,7 @@ export MATHLIB_NO_CACHE_ON_UPDATE=1
 echo "=== 全量构建 ==="
 lake build LmPrinciple 2>&1 | tail -2 || { echo "FAIL: lake build 失败"; exit 1; }
 echo "=== sorry/admit/axiom 检查 ==="
-FILES="RNN CNN Transformer LMT Fractal ArchCompare Efficiency InfoDynamics Murray Training CriticalPoint Hopfield"
+FILES="RNN CNN Transformer LMT Fractal ArchCompare Efficiency InfoDynamics Murray Training CriticalPoint Hopfield Maxwell"
 if grep -rn "sorry\|admit\|axiom" $(echo "$FILES" | sed 's/\([^ ]*\)/LmPrinciple\/\1.lean/g'); then
   echo "FAIL: 有未证明漏洞"
   exit 1
@@ -21,4 +21,4 @@ for f in $FILES; do
   TOTAL=$((TOTAL + c))
 done
 echo "TOTAL: $TOTAL 条"
-[ "$TOTAL" -ge 79 ] && echo "RESULT: ALL-PASS" && exit 0 || { echo "RESULT: 定理数异常"; exit 1; }
+[ "$TOTAL" -ge 83 ] && echo "RESULT: ALL-PASS" && exit 0 || { echo "RESULT: 定理数异常"; exit 1; }

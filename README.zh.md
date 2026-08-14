@@ -8,7 +8,7 @@
 **分形必要性**——涵盖容量计数、IE / EHS 结构，以及一条完整、有定理背书的
 论证：为何分形组织、残差回馈与最优深度从第一性原理涌现。
 
-**73 条定理已机器验证**（`lake build` 全绿，无 `sorry` / `admit` / `axiom`），
+**83 条定理已机器验证**（`lake build` 全绿，无 `sorry` / `admit` / `axiom`），
 并由 **pre-push 门禁** 守护（验证通过才允许推送）。
 
 英文主文档：[README.md](./README.md)
@@ -34,7 +34,7 @@
 
 ## 已验证结论（每条都有 Lean 定理背书）
 
-> 分形必要性 → 73 条机器验证定理。以下每条均由 Lean 定理背书。
+> 分形必要性 → 83 条机器验证定理。以下每条均由 Lean 定理背书。
 
 1. **分形组织比均匀堆叠更快**（核心假设 ✓）
    — `prefix_allocation_optimal` / `fractal_beats_uniform`：只要每层自由能下降量 `Δ_k` 严格递减，预算集中前缀（分形稀疏）的总收益 `≥` 均匀平摊——"分形省 25% 参数"不是巧合，是定理。
@@ -58,7 +58,7 @@
 
 ## 已形式化内容
 
-全部位于 `LmPrinciple/`，经 `lake build` 验证（合计 73 条定理）：
+全部位于 `LmPrinciple/`，经 `lake build` 验证（合计 83 条定理）：
 
 | 模块 | 内容 |
 |---|---|
@@ -73,8 +73,10 @@
 | `Murray.lean` | 变分最优 `r⁶=2a/b`、流量守恒、对称比率 `ρ³=1/2`、最优深度存在、幂律实例化（10） |
 | `Training.lean` | 缩放律、CE ≥ 熵、RLHF softmax、DPO 损失 ≥ 0、稀疏 MoE/注意力保界（10） |
 | `CriticalPoint.lean` | `optimal_depth_is_first_crossing`（`k* = min{k : Δ_k < λ}`）、幂律临界点对（3） |
+| `Hopfield.lean` | 能量差分 `E(s')-E(s)=(s_i-s'_i)·net_i`、翻转严格下降、现代 Hopfield = 凸组合 = 注意力、softmax 集中性 + 检索锁定误差界 `\|x_new-X_i\| ≤ n·e^{-βΔ}·M`（6） |
+| `Maxwell.lean` | 1D 格点麦克斯韦：交叉项 telescoping、能量守恒（无质量）、质量项衰减 `dH/dt = -m²ΣE²`——预言 `τ_G = 1/(6M₀²)`（m_G = √3·M₀ 假设下）（4） |
 
-> 截至 2026-08-13：`lake build` 全绿，**73 条定理**全部机器验证
+> 截至 2026-08-13：`lake build` 全绿，**83 条定理**全部机器验证
 > （mathlib 闭包从固定 pin 源码编译）；pre-push 门禁生效。
 
 ---
@@ -84,7 +86,7 @@
 - **断言 → 定理**：C1–C4 从"断言"升级为无条件、无经验数据依赖的机器证明。实验提供数值证据，定理提供保证，两者互证。
 - **最诚实的一环**：实验一的悖论没有掩盖，其机制被**精确定位**——阻力项漏流量守恒因子（`diagnose_murray_cost.py`；补上后内点最优收敛 `2^(-1/3)`）。"承认边界 + 用更完整的数学闭合"是科学写作的最优形态。
 - **本地真实实验 + 诚实修正**：三个实验本地复现（PyTorch CPU、seed 42、与原文差 < 0.01）；多 seed 复跑（`experiments_v2.py`，3 seeds）暴露了**不成立**的部分：分形 vs 均匀跨 seed 不显著、"4 层起损失断崖"是单次训练假象——而最优深度 2 与临界点 `k* = min{k : Δ_k < λ}` 稳健成立。
-- **可复现流水线**：wiki-first 编译 + 73 条定理全验证 + pre-push 门禁（验证无错误才能推送）——整个论证链可复现、可继承、可扩展。
+- **可复现流水线**：wiki-first 编译 + 83 条定理全验证 + pre-push 门禁（验证无错误才能推送）——整个论证链可复现、可继承、可扩展。
 
 ---
 
@@ -165,7 +167,7 @@ python3 scripts/untracked_raw_check.py     # 查找漏登 raw
 **已完成**
 
 - ✅ Lean 4.21.0 + mathlib v4.21.0 环境，全离线物化
-- ✅ **73 条定理**机器验证，覆盖 RNN / CNN / Transformer / LMT / Fractal
+- ✅ **83 条定理**机器验证，覆盖 RNN / CNN / Transformer / LMT / Fractal
 - ✅ 分形必要性论证：C1（默里 `0.79`）与 C2+C4（最优深度）已证
 - ✅ Wiki-first 知识系统（v2 bootstrap，lint 全绿）+ pre-push 门禁生效
 

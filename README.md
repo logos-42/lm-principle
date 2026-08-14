@@ -10,7 +10,7 @@ case studies are **LMT-twister** (counterfactual representation bottleneck) and
 full theorem-backed argument for why fractal organization, residual feedback, and
 optimal depth arise from first principles.
 
-**73 theorems are machine-verified** (`lake build` green, no `sorry` / `admit` /
+**83 theorems are machine-verified** (`lake build` green, no `sorry` / `admit` /
 `axiom`), guarded by a **pre-push gate** (verification must pass before any push).
 
 中文文档（Chinese documentation）：[README.zh.md](./README.zh.md)
@@ -45,7 +45,7 @@ assertions into unconditional, data-independent machine proofs.
 
 ## Verified conclusions (each backed by a Lean theorem)
 
-> 分形必要性 → 73 条机器验证定理。Every item below has a Lean theorem as its
+> 分形必要性 → 83 条机器验证定理。Every item below has a Lean theorem as its
 > backing.
 
 1. **Fractal organization beats uniform stacking** (core hypothesis ✓)
@@ -104,7 +104,7 @@ assertions into unconditional, data-independent machine proofs.
 
 ## What is formalized
 
-All in `LmPrinciple/`, verified by `lake build` (**73 theorems** total):
+All in `LmPrinciple/`, verified by `lake build` (**83 theorems** total):
 
 | Module | Content |
 |---|---|
@@ -119,8 +119,10 @@ All in `LmPrinciple/`, verified by `lake build` (**73 theorems** total):
 | `Murray.lean` | Variational optimum `r⁶=2a/b`, flow conservation, symmetric ratio `ρ³=1/2`, optimal-depth existence, power-law instantiation (10) |
 | `Training.lean` | Scaling law, CE ≥ entropy, RLHF softmax, DPO loss ≥ 0, sparse MoE/attention bound-preserving (10) |
 | `CriticalPoint.lean` | `optimal_depth_is_first_crossing` (`k* = min{k : Δ_k < λ}`), power-law critical pair (3) |
+| `Hopfield.lean` | Energy difference `E(s')-E(s)=(s_i-s'_i)·net_i`, flip strictly decreases, modern Hopfield = convex combination = attention, softmax concentration + retrieval error bound `\|x_new-X_i\| ≤ n·e^{-βΔ}·M` (6) |
+| `Maxwell.lean` | 1D lattice Maxwell: cross-term telescoping, energy conservation (massless), massive decay `dH/dt = -m²ΣE²` — prediction `τ_G = 1/(6M₀²)` under `m_G = √3·M₀` (4) |
 
-> As of 2026-08-13: `lake build` fully green, **73 theorems** machine-verified
+> As of 2026-08-13: `lake build` fully green, **83 theorems** machine-verified
 > (mathlib closure compiled from pinned sources); pre-push gate active.
 
 ---
@@ -141,7 +143,7 @@ All in `LmPrinciple/`, verified by `lake build` (**73 theorems** total):
   what does *not* survive: fractal-vs-uniform is not significant across seeds,
   and the "loss cliff from depth 4" is a single-run artifact — while optimal
   depth 2 and the critical point `k* = min{k : Δ_k < λ}` are robust.
-- **Reproducible pipeline.** wiki-first compilation + 73 verified theorems +
+- **Reproducible pipeline.** wiki-first compilation + 83 verified theorems +
   pre-push gate (verification must pass before push) — the whole argument chain
   is reproducible, inheritable, and extensible.
 
@@ -226,7 +228,7 @@ A **pre-push gate** ensures `lake build` is green (no `sorry` / `admit` /
 **Done**
 
 - ✅ Lean 4.21.0 + mathlib v4.21.0 environment, fully offline-pinned
-- ✅ **73 theorems** machine-verified across RNN / CNN / Transformer / LMT / Fractal
+- ✅ **83 theorems** machine-verified across RNN / CNN / Transformer / LMT / Fractal
 - ✅ Fractal-necessity argument: C1 (Murray `0.79`) and C2+C4 (optimal depth) proven
 - ✅ Wiki-first knowledge system (v2 bootstrap, lint green) + pre-push gate active
 
@@ -264,7 +266,9 @@ A **pre-push gate** ensures `lake build` is green (no `sorry` / `admit` /
 - Live status: `docs/wiki/current-status.md`
 - Local experiments: `experiments/run_fractal_experiments.py` +
   `scripts/experiments_v2.py` (multi-seed honest rerun) +
-  `scripts/diagnose_murray_cost.py` (paradox diagnosis)
+  `scripts/diagnose_murray_cost.py` (paradox diagnosis) +
+  `scripts/hopfield_experiments.py` / `scripts/experiments_h2.py` (Hopfield
+  energy, β-bifurcation, β_eff×depth, char-LM ΔE_k)
 
 Remote: `git@github.com:logos-42/lm-principle.git`
 

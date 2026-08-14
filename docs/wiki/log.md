@@ -12,6 +12,7 @@ schema_version: 2
 
 | 日期 | 类型 | 主题 | 要点 |
 |------|------|------|------|
+| 2026-08-13 | Maxwell | 麦克斯韦方程 × 现有数学 (基础 + 假设扩展 + 预言) | 新模块 Maxwell.lean (+4 定理, 总计 79→83): 1D 周期格点 (ZMod N) 麦克斯韦——cross_term_zero (telescoping 对消), maxwell_energy_conservation (无质量守恒), massive_energy_decay (质量项 dH/dt=-m²ΣE²), massive_energy_non_increasing。预言: m_G=√3·M₀ ⟹ τ_G=1/(6M₀²) (条件性)。README/论文两版更新 (§maxwell)。关键坑: Fin 减法是截断的 (0-1=0), 周期格点必须用 ZMod N; ∑ n, A+B 无括号时 ∑ 只绑定 A。 |
 | 2026-08-13 | Hopfield | 实验扩展: β_eff×深度 + 真实 LM ΔE_k | E5: 每层实际逆温度 β_eff=logit spread 深层更集中 (depth8: 0.64→7.85), 锁定区层数随深度增加; ΔE_k 不递减 (全正 0-57%)。E6: 字符级 LM (vocab=91, loss 3.30 vs 基线 4.51 真实学习) 的 ΔE_k 全正仅 1/3 ⟹ 排除合成任务伪影, 负面结论成立。弱观察: β_eff 峰值层=能量下降层。 |
 | 2026-08-13 | Hopfield | E3 β 分岔 Lean 定理化 (log-sum-exp 分析) | +2 定理 (总计 77→79): softmax_weight_concentration (得分差≥Δ ⟹ w_j≤e^{-Δ}, 定量集中性免极限) + hopfield_retrieval_error_bound (\|x_new−X_i\| ≤ n·e^{-βΔ}·M, 检索锁定误差界——E3 实验 β≥9.6 锁定 1.000 的理论形式)。 |
 | 2026-08-13 | Hopfield | Hopfield 能量形式化 + 下一轮实验 | 新模块 Hopfield.lean (+4 定理, 总计 73→77): 能量差分恒等式 (双和展开机器验证), 翻转严格下降 (异步更新收敛), 现代 Hopfield 更新=凸组合, Hopfield=Attention 同构。实验 (hopfield_experiments.py): E1 联想记忆容量平滑下降; E2 能量轨迹 3/3 单调非增 (与定理互证); E3 β 分岔相变 (β_c≈4, 混合态→模式锁定); E4 逐层能量 ΔE_k 全正仅 3/5/2/5 ⟹ 能量度量下递减性依然不成立 (强化上轮负面结论)。 |

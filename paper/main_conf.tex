@@ -572,6 +572,25 @@ Experiment & Setting & Outcome (local run) \\
 \end{tabular}
 \end{table}
 
+
+\section{Maxwell's Equations Meet the Energy Framework}
+\label{sec:maxwell}
+On a one-dimensional periodic lattice ($\mathbb{Z}_N$, staggered differences),
+the vacuum Maxwell equations $\dot E_n = -(B_n - B_{n-1})/\Delta x$,
+$\dot B_n = -(E_{n+1} - E_n)/\Delta x$ conserve the field energy
+$H = \tfrac12\sum_n(E_n^2+B_n^2)$: the cross term telescopes to zero on the
+periodic lattice (Theorem~\ref{thm:maxwell},
+\texttt{maxwell\_energy\_conservation}). Adding a mass term
+(Proca-type) $\dot E_n = \cdots - m^2 E_n$ gives
+$dH/dt = -m^2\sum_n E_n^2 \le 0$ (Theorem~\ref{thm:massive},
+\texttt{massive\_energy\_decay}). Under the authors' three-direction
+hypothesis $m_G = \sqrt3\,M_0$, the energy-decay time constant is
+$\tau_G = 1/(2m_G^2) = 1/(6M_0^2)$ --- a conditional, testable prediction.
+The massless case is the conservative counterpart of the Hopfield flip
+dynamics (\texttt{flip\_energy\_strictly\_decreases}); the mass term is
+dissipation. Limitation: these theorems verify the \emph{lattice algebra} of
+the energy structure; the continuum limit is deferred.
+
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
 We presented the first machine-verified first-principles account of the
