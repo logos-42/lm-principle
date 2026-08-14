@@ -66,7 +66,21 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   kstar = Nat.find (fun k => Δ k < mc) 是最优深度, ∀L, N(L) ≤ N(kstar)) +
   `power_law_critical_pair` (幂律 Δ_k=c/(k+1)² 的跌破点满足
   Δ_kstar < λ ≤ Δ_kstar-1, 两侧夹逼) + `power_law_optimal_depth_is_critical` (组合)
-- ✅ **总计: 73 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **LmPrinciple/Hopfield.lean (2026-08-13, +4 定理)**: Hopfield 能量最小化
+  形式化 (hopfile.md 驱动) —— `energy_difference` (能量差分恒等式:
+  E(s')-E(s) = (s_i-s'_i)·net_i, 对称权重+无自环, 双和展开机器验证) +
+  `flip_energy_strictly_decreases` (翻转 ⟹ 能量严格下降 = 异步更新收敛保证)
+  + `hopfield_update_convex_combination` (现代 Hopfield 更新 = softmax 凸组合,
+  复用 Transformer) + `hopfield_update_eq_attn` (Hopfield 检索 = Transformer
+  attention 同构)
+- ✅ **Hopfield 实验 (2026-08-13)**: scripts/hopfield_experiments.py ——
+  E1 联想记忆容量 (P/N: 0.05→1.0, 0.2→0.80, 0.3→0.72 平滑下降);
+  E2 能量轨迹 3 trials 全单调非增 (与 flip_energy_strictly_decreases 互证);
+  E3 **β 分岔相变** (β<3.6 混合态 0.888, β≈4.3 跃迁, β≥9.6 模式锁定 1.000);
+  E4 逐层 Hopfield 能量 ΔE_k 全正仅 3/5 (β=1) / 2/5 (β=10) ⟹ **能量度量下
+  依然不递减**——强化上轮结论: 最优深度定理的"收益严格递减"前提在
+  真实网络 (loss 度量 + 能量度量) 下均不成立
+- ✅ **总计: 77 条定理全部机器验证**（lake build 全绿, 无 sorry）
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿
