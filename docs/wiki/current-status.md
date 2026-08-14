@@ -85,7 +85,15 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   无需极限论证的定量集中性) + `hopfield_retrieval_error_bound` (检索锁定
   误差界: |x_new - X_i| ≤ n·e^{-βΔ}·M——β/Δ 增大 ⟹ 指数锁定, E3 实验
   β≥9.6 重叠=1.000 的理论形式; 凸组合权重集中 + 三角不等式)
-- ✅ **总计: 79 条定理全部机器验证**（lake build 全绿, 无 sorry）
+- ✅ **Hopfield 实验扩展 (2026-08-13)**: scripts/experiments_h2.py ——
+  E5 **β_eff×深度扫描**: 每层实际逆温度 β_eff = logit spread 深层单调更集中
+  (depth8: 0.64→7.85; depth4: 0.95→6.18), 深度越大进入锁定区 (β>β_c≈4) 的
+  层越多; ΔE_k 依然不递减 (全正 0/1, 2/3, 2/5, 4/7); 弱观察: β_eff 峰值层
+  与正能量下降层重合 (depth6 层5 +0.344, E6 层3 +0.049)。
+  E6 **字符级 LM 重测 ΔE_k** (真实文本语料, vocab=91, test loss 3.30 vs
+  随机基线 4.51——真实学习): ΔE_k 全正仅 1/3 (β=1 和 10) ⟹ **排除合成任务
+  伪影, 负面结论在真实 LM 上成立**。诚实标注: E5 模型欠训练 (full-batch),
+  E6 单 seed。
 - ✅ **推送门禁 (lefthook)**: .lefthook.yml (pre-push: verify_all.sh +
   wiki_lint) + 手动 .git/hooks/pre-push 兜底——验证无错误才能推送
 - ✅ **Wiki-first 系统**: 维基-llm v2 bootstrap（38 文件），wiki_lint 全绿

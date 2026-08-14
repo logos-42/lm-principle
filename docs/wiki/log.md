@@ -12,6 +12,7 @@ schema_version: 2
 
 | 日期 | 类型 | 主题 | 要点 |
 |------|------|------|------|
+| 2026-08-13 | Hopfield | 实验扩展: β_eff×深度 + 真实 LM ΔE_k | E5: 每层实际逆温度 β_eff=logit spread 深层更集中 (depth8: 0.64→7.85), 锁定区层数随深度增加; ΔE_k 不递减 (全正 0-57%)。E6: 字符级 LM (vocab=91, loss 3.30 vs 基线 4.51 真实学习) 的 ΔE_k 全正仅 1/3 ⟹ 排除合成任务伪影, 负面结论成立。弱观察: β_eff 峰值层=能量下降层。 |
 | 2026-08-13 | Hopfield | E3 β 分岔 Lean 定理化 (log-sum-exp 分析) | +2 定理 (总计 77→79): softmax_weight_concentration (得分差≥Δ ⟹ w_j≤e^{-Δ}, 定量集中性免极限) + hopfield_retrieval_error_bound (\|x_new−X_i\| ≤ n·e^{-βΔ}·M, 检索锁定误差界——E3 实验 β≥9.6 锁定 1.000 的理论形式)。 |
 | 2026-08-13 | Hopfield | Hopfield 能量形式化 + 下一轮实验 | 新模块 Hopfield.lean (+4 定理, 总计 73→77): 能量差分恒等式 (双和展开机器验证), 翻转严格下降 (异步更新收敛), 现代 Hopfield 更新=凸组合, Hopfield=Attention 同构。实验 (hopfield_experiments.py): E1 联想记忆容量平滑下降; E2 能量轨迹 3/3 单调非增 (与定理互证); E3 β 分岔相变 (β_c≈4, 混合态→模式锁定); E4 逐层能量 ΔE_k 全正仅 3/5/2/5 ⟹ 能量度量下递减性依然不成立 (强化上轮负面结论)。 |
 | 2026-08-13 | 审查+补齐 | 实验论证审查: 找到临界点, 修公式/实验缺陷 | 审查结论: 定理层严谨, 声明层 6 处失真 (三项措辞/悖论解决无支撑/ffn 模态/hypothesis_verification docstring/深度定理未用条件(i)/1D 形式化)。补齐: ①新模块 CriticalPoint.lean 3 定理 (总计 70→73): 临界点定理 (最优深度 = 第一个 Δ_k<λ 的层, 精确闭式), 幂律临界点对 (Δ_kstar<λ≤Δ_kstar-1), 组合定理 ②实验一公式缺陷根因: 树级成本漏流量守恒因子 Q_g=Q/2^g, 修正后最优收敛 2^(-1/3) (G=50: 0.795, 偏差 0.13%), 见 diagnose_murray_cost.py ③实验 v2 多 seed + 深度监督 Δ_k 测量 (experiments_v2.py) ④闭式公式数值验证 (verify_critical_point.py) ⑤论文 two-term 措辞修正 + Remark 悖论真解决 ⑥docstring 修补 (ffn 必要→充分, T10 合取修正)。 |
