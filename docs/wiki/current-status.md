@@ -163,7 +163,9 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   - **诚实结论**: 定理逻辑正确 (if Δ 严格递减 + 跌破 ⟹ kstar 最优);
     实验数据不满足定理前提 (Δ_k 非单调) ⟹ 论文把实验改标为
     "structural statement, 测量见 v2", 并修正三项措辞/ffn 模态/T10 docstring
-- ✅ **远程**: git@github.com:logos-42/lm-principle.git（SSH 已认证，已推送）
+- ✅ **远程**: git@github.com:logos-42/lm-principle.git（SSH 已认证，已推送）。
+  **2026-10-20 已推送 commit 3cbc84a**（认知动力学立项: 公设体系 + L6/五组件推导
+  + E8-E12 实验 + 94 定理, 27 files +3162 行）
 
 ## 认知动力学工作线（2026-10-20 启动 · 同日定调牛顿秩序）
 
