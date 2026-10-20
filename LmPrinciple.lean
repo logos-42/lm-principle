@@ -24,3 +24,5 @@ import LmPrinciple.CriticalPoint
 import LmPrinciple.Hopfield
 import LmPrinciple.Maxwell
 import LmPrinciple.Training
+import LmPrinciple.Gibbs
+import LmPrinciple.CognitiveDynamics
