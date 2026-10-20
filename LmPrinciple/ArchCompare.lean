@@ -63,7 +63,7 @@ namespace ArchCompare
     ⟹ 任意两输入的距离至少保留 (1-c) 比例: |T x - T y| ≥ (1-c)·|x-y|。
     直观: 恒等路径保证输出里始终有输入的影子 (防坍缩到同一点)。 -/
 theorem residual_no_collapse (f : ℝ → ℝ) (c : ℝ)
-    (hcont : ∀ x y : ℝ, |f x - f y| ≤ c * |x - y|) (hc1 : c < 1) :
+    (hcont : ∀ x y : ℝ, |f x - f y| ≤ c * |x - y|) (_hc1 : c < 1) :
     ∀ x y : ℝ, (1 - c) * |x - y| ≤ |(x + f x) - (y + f y)| := by
   intro x y
   have htri : |x - y| - |f x - f y| ≤ |(x + f x) - (y + f y)| := by
@@ -71,12 +71,12 @@ theorem residual_no_collapse (f : ℝ → ℝ) (c : ℝ)
     have h2 := abs_add_le ((x - y) + (f x - f y)) (-(f x - f y))
     have h3 : |x - y| ≤ |(x - y) + (f x - f y)| + |f x - f y| := by
       convert h2 using 1
-      · ring
+      · ring_nf
       · rw [abs_neg]
     have h' : |x - y| - |f x - f y| ≤ |(x - y) + (f x - f y)| := by
       linarith
     convert h' using 1
-    ring
+    ring_nf
   calc
     (1 - c) * |x - y| = |x - y| - c * |x - y| := by ring
     _ ≤ |x - y| - |f x - f y| := by
@@ -86,7 +86,7 @@ theorem residual_no_collapse (f : ℝ → ℝ) (c : ℝ)
 /-- **P1b 残差防坍缩 (n 层)**: n 层残差后任意两输入的距离
     ≥ (1-c)^n·|x-y|——高维结构在整个运行过程中不坍缩。 -/
 theorem residual_no_collapse_n (f : ℝ → ℝ) (c : ℝ)
-    (hcont : ∀ x y : ℝ, |f x - f y| ≤ c * |x - y|) (hc1 : c < 1) (hc0 : 0 ≤ c) :
+    (hcont : ∀ x y : ℝ, |f x - f y| ≤ c * |x - y|) (_hc1 : c < 1) (_hc0 : 0 ≤ c) :
     ∀ n : ℕ, ∀ x y : ℝ, (1 - c) ^ n * |x - y| ≤
       |(fun z : ℝ => z + f z)^[n] x - (fun z : ℝ => z + f z)^[n] y| := by
   intro n
@@ -105,7 +105,7 @@ theorem residual_no_collapse_n (f : ℝ → ℝ) (c : ℝ)
             exact mul_le_mul_of_nonneg_left (ih x y) h1c
         _ ≤ |(fun z : ℝ => z + f z)^[n + 1] x - (fun z : ℝ => z + f z)^[n + 1] y| := by
             -- 单层防坍缩应用: T (T^n x) vs T (T^n y)
-            have hstep := residual_no_collapse f c hcont hc1 ((fun z : ℝ => z + f z)^[n] x)
+            have hstep := residual_no_collapse f c hcont _hc1 ((fun z : ℝ => z + f z)^[n] x)
               ((fun z : ℝ => z + f z)^[n] y)
             rw [Function.iterate_succ']
             simpa using hstep
@@ -124,7 +124,7 @@ def lstmCell (α : ℝ) (g : ℕ → ℝ) (c0 : ℝ) : ℕ → ℝ
     ⟹ c_t ≥ α^t·c_0——旧信息至少保留 α^t 比例, 不消失。
     (α → 1 时完全不遗忘 = 恒等路径, 信息 100% 保留) -/
 theorem lstm_memory_retention (α : ℝ) (g : ℕ → ℝ) (c0 : ℝ)
-    (hα0 : 0 ≤ α) (hg : ∀ t : ℕ, 0 ≤ g t) (hc0 : 0 ≤ c0) :
+    (hα0 : 0 ≤ α) (hg : ∀ t : ℕ, 0 ≤ g t) (_hc0 : 0 ≤ c0) :
     ∀ t : ℕ, α ^ t * c0 ≤ lstmCell α g c0 t := by
   intro t
   induction t with
@@ -149,7 +149,7 @@ theorem rnn_memory_decay (w : ℝ) :
     rw [← mul_sub, abs_mul]
   have hdecay := Fractal.residual_contraction_decay (fun z : ℝ => w * z) (|w|)
     hcont (abs_nonneg w) (by simp) n e
-  simpa using hdecay
+  exact hdecay
 
 -- ============================================================
 -- §3 CNN 局部性: 感受野 = 核支持

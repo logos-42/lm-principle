@@ -12,6 +12,7 @@ schema_version: 2
 
 | 日期 | 类型 | 主题 | 要点 |
 |------|------|------|------|
+| 2026-10-20 | 清理 | v4.35 迁移后 lint 清零 | **迁移残留警告全部消除**：`lake build` / `lake build LmPrinciple` 均 0 error / 0 warning（含 `rm -rf .lake/build/lib/lean/LmPrinciple*` 后干净重建验证）。①module-system 警告 → `lakefile.toml` 的 `[[lean_lib]] LmPrinciple` 加 `allowNonModules = true`（本库无 module 头但依赖 `requiresModuleSystem := true` 的 mathlib）。②unused-variable 13 处 → 全部是"证明比声明更强"情形，保留公开签名语义契约位改 `_` 前缀（`_hc1`/`_hc0`/`_hmc`/`_hβ`/`_hΔ`/`_ha`/`_hsum`/`_hS`/`_hb`/`_hd1`），涉及 ArchCompare/CriticalPoint/Fractal/Hopfield/Murray/Training。③info 级提示：`ring`→`ring_nf`（ArchCompare 2 处 convert 后目标）；`Finset.card_le_univ`→`simp [Fintype.card_fin]`；`if_pos/if_neg`→`ite_eq_left/ite_eq_right`；`haveI : Nonempty (Fin n)`→`have hne`；`Mathlib.Data.Complex.Basic`→`Mathlib.Basic.Complex.Basic`；`simpa using hdecay`→`exact hdecay`。剩余仅 2 条刻意 `#check` info。无 sorry/admit。 |
 | 2026-10-20 | 迁移 | Lean 4.21→4.35 + mathlib 308445d→56a0058 | **v4.35 迁移完成**: lean-toolchain v4.21.0→v4.35.0，mathlib 308445d→56a0058 (tag v4.35.0)；`lake build` 全绿，15 模块编译通过，83 条定理无 sorry。破坏性变更修复: `∑ k in s` 记法移除→`∑ k ∈ s` (9 文件 104 处)；`abs_add`→`abs_add_le` (RNN/ArchCompare)；`AddMonoidAlgebra.single_mul_apply`→`coeff_single_mul_apply`+`.coeff` (CNN)；`Finset.sum_eq_add_sum_diff_singleton`→`Finset.add_sum_erase` (Hopfield 5 处)；`field_simp` 更强→删冗余 `ring` (Fractal/Hopfield/Murray)；`simpa using hmul` 加 `div_eq_mul_inv` (Murray/Training)；`mul_lt_mul_left` 改 `mul_lt_mul_of_pos_left/right`+`lt_of_lt_of_eq` (Efficiency)；`Mathlib.Data.Real.Basic`→`Mathlib.Basic.Real.Basic` (12 文件)。环境: 当前机 macOS，依赖以符号链接复用 NavierStokesAndEuler 的 v4.35.0 集。 |
 | 2026-08-17 | 判定实验 | E7: Δ_k 递减性在真实 LM 上是否恢复 + H100 算力评估 | **E7 (experiments_e7.py, 3 seeds, 12 层深度监督, 200K 字符真实语料, vocab=1147)**: Δ₁=+2.95, Δ₂=+0.42 (第二层仍有正收益——合成任务此处已 -2.24), 此后 ±0.17 噪声震荡; 递减一致性 6/11=55% (合成 45%, 随机 50%)。**三结论**: ①合成线性任务的"证伪"是任务饱和伪影 (任务无深度收益), 真实任务确有连续深度收益 ②"Δ 严格递减"前提对真实网络过强——真实给"近似递减+噪声" ③由此 H100 实验核心指标改为"递减一致性随规模的单调性" (显著>70%=规模恢复, ≈50%=真证伪), 二值判定不白烧钱。**H100 预算 (estimate_h100_budget.py)**: 350M 全套矩阵 19 模型 = 373 卡时/$933/1.5 天 (10 卡); 1.3B = $4623/7.7 天; 7B = $124K/207 天 ✗。推荐 P0 真实语料深度扫描 + P1 β_eff 并入同批模型, 不做 7B。定理缺口: 需补"近似递减 ⟹ kstar 近优"扰动版本 (Lean 可做)。 |
 | 2026-08-13 | Maxwell | 麦克斯韦方程 × 现有数学 (基础 + 假设扩展 + 预言) | 新模块 Maxwell.lean (+4 定理, 总计 79→83): 1D 周期格点 (ZMod N) 麦克斯韦——cross_term_zero (telescoping 对消), maxwell_energy_conservation (无质量守恒), massive_energy_decay (质量项 dH/dt=-m²ΣE²), massive_energy_non_increasing。预言: m_G=√3·M₀ ⟹ τ_G=1/(6M₀²) (条件性)。README/论文两版更新 (§maxwell)。关键坑: Fin 减法是截断的 (0-1=0), 周期格点必须用 ZMod N; ∑ n, A+B 无括号时 ∑ 只绑定 A。 |
@@ -264,6 +265,47 @@ schema_version: 2
     + `lt_of_lt_of_eq`（Efficiency: 3d²<n 与 n²/(3d²) 两段不等式）
   - 弃用导入 `Mathlib.Data.Real.Basic` → `Mathlib.Basic.Real.Basic`（编译器建议的新路径，12 文件）
 - ✅ **验证**: `lake build` EXIT=0、无 error、扫描无 sorry/admit/axiom、定理计数 83、15 模块均产 olean
-- 残留 warning (非致命): 部分 mathlib 模块提示 module-system（`consider adding 'module'`）建议，未改
+- ✅ **warning 清零 (并行会话跟进)**: `lakefile.toml` 加 `allowNonModules = true` 消除
+  module-system 警告；`Mathlib.Data.Complex.Basic`→`Mathlib.Basic.Complex.Basic`（LMT/Smoke）；
+  `haveI`→`have`、未用变量 `_` 前缀、`if_pos`/`if_neg`→`ite_eq_left`/`ite_eq_right`、
+  `ring`→`ring_nf`、`Real.log_inv`/`Finset.card_le_univ` 等局部简化——`lake build` 现零 warning
+  → **已于 2026-10-20 同日后续会话清零**（`allowNonModules = true` + 13 处 unused-variable
+  改名 + info 级提示修复；最终 0 error / 0 warning）
 - 同步更新 current-status.md（工具链/依赖版本、迁移小结、∑ in 移除、macOS 环境说明）与本文档
 - 待提交推送
+
+## [2026-10-20] 会话 | v4.35 迁移后 lint 清零（0 error / 0 warning）
+
+- 目标: 把 v4.35 迁移遗留的警告全部清掉，做到干净重建无任何 error / warning
+- **module-system 警告**: 根因 = 本库文件没有 `module` 头，但依赖 mathlib
+  （`requiresModuleSystem := true`），Lake 对每个下游模块提示 `consider adding 'module'`
+  → 解决 = `lakefile.toml` 的 `[[lean_lib]] LmPrinciple` 加 `allowNonModules = true`
+  （这是"非 module-system 下游库依赖 module-system 库"的官方配置方式，
+  不是给每个文件加 module 头——后者会改变库的组织语义）
+- **unused-variable 13 处**: 逐条定位后发现**全部**是"证明比定理声明更强"的情形：
+  - `residual_no_collapse` / `residual_no_collapse_n` 的 `hc1 : c < 1`（由 hcont 蕴含即得）
+  - `lstm_memory_retention` 的 `hc0 : 0 ≤ c0`
+  - `optimal_depth_is_first_crossing` / `depth_beyond_threshold_useless` 的 `hmc`
+  - `fractal_dimension_scale_invariant` 的 `hb`；`connection_density_strict_anti` 的 `hd1`
+  - `hopfield_update_convex_combination` 的 `hβ`；`softmax_weight_concentration` 的 `hΔ`
+  - `murray_variational_optimal` 的 `ha`
+  - `rlhf_policy_is_distribution` 的 `hβ`；`sparse_moe_preserves_bound` 的 `hsum` / `hS`
+  - 决策: **不删参数**（这些是定理的公开语义契约，是声明的一部分而非实现细节），
+    只改名加 `_` 前缀（Lean 惯例：`_` 前缀 = 显式声明"此参数在证明中不使用"），
+    这样定理签名语义不变、调用方不受影响、lint 也通过
+- **info 级提示修复**:
+  - `ring` 在 `convert ... using 1` 之后的目标里只做归一化不能闭合 →
+    改 `ring_nf`（ArchCompare 2 处；`ring_nf` 直接把目标归一化到可闭合形式）
+  - `Finset.card_le_univ` → `simp [Fintype.card_fin]`（Hopfield）
+  - `if_pos/if_neg` → `ite_eq_left/ite_eq_right`（Training）
+  - `haveI : Nonempty (Fin n)` → `have hne : Nonempty (Fin n)`（Transformer / Hopfield）
+  - `Mathlib.Data.Complex.Basic` → `Mathlib.Basic.Complex.Basic`（Smoke / LMT）
+  - `simpa using hdecay` → `exact hdecay`（ArchCompare，v4.35 下已是定义相等）
+  - `simpa using (Real.log_inv x)` → `simp`（InfoDynamics）
+- ✅ **验证**:
+  - `lake build LmPrinciple` EXIT=0，`grep -c '^warning'` = 0，`grep -c '^error'` = 0
+  - `rm -rf .lake/build/lib/lean/LmPrinciple*` 后**干净重建**同样 0 error / 0 warning
+  - 全量 `lake build`（2088 jobs）EXIT=0，0 error / 0 warning
+  - `grep -rn "sorry\|admit" LmPrinciple/` 无命中
+  - 剩余仅 2 条 `info`：`ArchCompare.lean:161/162` 两个 `#check` 的刻意输出
+- 同步更新 current-status.md（新增"v4.35 lint 清零"小节 + `last_confirmed` 改 2026-10-20）

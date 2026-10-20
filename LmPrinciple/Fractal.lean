@@ -292,7 +292,7 @@ theorem moe_error_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
 /-- **分形维数尺度不变**: D = log b / log(1/s) (b 分支数, s 收缩比),
     n 级缩放后维数不变——分形自相似性的严格表达。 -/
 theorem fractal_dimension_scale_invariant (b s : ℝ) (n : ℕ) (hn : n ≠ 0)
-    (hb : 1 < b) (hs0 : 0 < s) (hs1 : s < 1) :
+    (_hb : 1 < b) (hs0 : 0 < s) (hs1 : s < 1) :
     Real.log (b ^ n) / Real.log ((1 / s) ^ n) = Real.log b / Real.log (1 / s) := by
   rw [Real.log_pow, Real.log_pow]
   have hls : Real.log (1 / s) ≠ 0 := by
@@ -304,7 +304,7 @@ theorem fractal_dimension_scale_invariant (b s : ℝ) (n : ℕ) (hn : n ≠ 0)
 /-- **连接密度幂律单调**: 分形连接密度 δ(d) = (1-d)^(D-1) 随深度 d
     严格递减 (D > 1) —— 分形结构必然"浅层密集、深层稀疏"。 -/
 theorem connection_density_strict_anti (D : ℝ) (hD : 0 < D - 1) {d1 d2 : ℝ}
-    (hd1 : 0 ≤ d1) (hd2 : d2 ≤ 1) (hlt : d1 < d2) :
+    (_hd1 : 0 ≤ d1) (hd2 : d2 ≤ 1) (hlt : d1 < d2) :
     (1 - d2) ^ (D - 1) < (1 - d1) ^ (D - 1) := by
   have hbase_lt : 1 - d2 < 1 - d1 := by linarith
   have hbase_nonneg : 0 ≤ 1 - d2 := by linarith

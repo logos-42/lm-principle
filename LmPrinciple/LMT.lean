@@ -23,7 +23,7 @@ z_{n+1} = a·z_n + b·x_n,  a = e^{Δλ} ∈ ℂ
 等待用户的假设与 mathlib InformationTheory 支持, 见文件尾部注释。
 -/
 import Mathlib.Basic.Real.Basic
-import Mathlib.Data.Complex.Basic
+import Mathlib.Basic.Complex.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import LmPrinciple.RNN
@@ -85,7 +85,7 @@ theorem cssm_eq_rnn (a b : ℂ) (x : ℕ → ℂ) :
     cssm a b x = RNN.rnn (R := ℂ) a (fun k => b * x k) := by
   funext n
   induction n with
-  | zero => simp [cssm, RNN.rnn, RNN.step]
+  | zero => simp [cssm, RNN.rnn]
   | succ n ih => simp [cssm, RNN.rnn, RNN.step, ih]
 
 /-- **SSM 闭式解**: z(n+1) = Σ_k a^{n-k}·b·x(k) (因果卷积, 复用 RNN 定理) -/

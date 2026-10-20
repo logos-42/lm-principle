@@ -47,7 +47,7 @@ def netBenefit (Δ : ℕ → ℝ) (mc : ℝ) (L : ℕ) : ℝ :=
     ∀m < kstar, mc ≤ Δ m (find_min); 链式上升/下降闭合。 -/
 theorem optimal_depth_is_first_crossing (Δ : ℕ → ℝ) (mc : ℝ)
     (hdec : ∀ {k j : ℕ}, k < j → Δ j < Δ k)
-    (hmc : 0 < mc) (hcross : ∃ k₀ : ℕ, ∀ k ≥ k₀, Δ k < mc) :
+    (_hmc : 0 < mc) (hcross : ∃ k₀ : ℕ, ∀ k ≥ k₀, Δ k < mc) :
     let kstar : ℕ := Nat.find (p := fun k => Δ k < mc)
         (by rcases hcross with ⟨k₀, hk₀⟩; exact ⟨k₀, hk₀ k₀ (le_refl k₀)⟩)
     ∀ L : ℕ, netBenefit Δ mc L ≤ netBenefit Δ mc kstar := by

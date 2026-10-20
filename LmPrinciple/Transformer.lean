@@ -32,7 +32,7 @@ def softmaxWeight {n : ℕ} (s : Fin n → ℝ) (i : Fin n) : ℝ :=
 /-- **softmax 权重恒正**: 每个权重 > 0 -/
 theorem softmaxWeight_pos {n : ℕ} (hn : 0 < n) (s : Fin n → ℝ) (i : Fin n) :
     0 < softmaxWeight s i := by
-  haveI : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
+  have hne : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
   unfold softmaxWeight
   exact div_pos (Real.exp_pos _)
     (Finset.sum_pos (fun _ _ => Real.exp_pos _) Finset.univ_nonempty)
@@ -40,7 +40,7 @@ theorem softmaxWeight_pos {n : ℕ} (hn : 0 < n) (s : Fin n → ℝ) (i : Fin n)
 /-- **softmax 归一**: Σ_i w_i = 1 (凸组合) -/
 theorem softmax_sum_eq_one {n : ℕ} (hn : 0 < n) (s : Fin n → ℝ) :
     (∑ i : Fin n, softmaxWeight s i) = 1 := by
-  haveI : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
+  have hne : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
   let D : ℝ := ∑ j : Fin n, Real.exp (s j)
   have hD : D ≠ 0 := ne_of_gt (Finset.sum_pos (fun _ _ => Real.exp_pos _) Finset.univ_nonempty)
   calc

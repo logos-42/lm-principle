@@ -201,7 +201,7 @@ def hopfieldUpdate {n : ℕ} (β : ℝ) (X : Fin n → ℝ) (x : ℝ) : ℝ :=
 /-- **现代 Hopfield 更新 = 凸组合检索**: 输出是存储模式 X_j 的凸组合
     (权重 > 0 且归一) —— Attention 的数学本质 (hopfile.md:
     "Transformer 是高速连续 Hopfield 网络")。 -/
-theorem hopfield_update_convex_combination {n : ℕ} (hn : 0 < n) (β : ℝ) (hβ : 0 < β)
+theorem hopfield_update_convex_combination {n : ℕ} (hn : 0 < n) (β : ℝ) (_hβ : 0 < β)
     (X : Fin n → ℝ) (x : ℝ) :
     ∃ w : Fin n → ℝ, (∀ j : Fin n, 0 ≤ w j) ∧ (∑ j, w j) = 1 ∧
       hopfieldUpdate β X x = ∑ j, w j * X j := by
@@ -234,14 +234,14 @@ theorem hopfield_update_eq_attn {n : ℕ} (hn : 0 < n) (β : ℝ) (hβ : β ≠ 
     数学核心: 得分差越大权重越集中, 无需极限论证——对任意有限得分
     都成立。证明: w_j = e^{s_j}/D ≤ e^{s_j}/e^{s_i} = e^{-(s_i-s_j)} ≤ e^{-Δ}。 -/
 theorem softmax_weight_concentration {n : ℕ} (hn : 0 < n) (Δ : ℝ) (s : Fin n → ℝ) (i : Fin n)
-    (hΔ : 0 < Δ)
+    (_hΔ : 0 < Δ)
     (hgap : ∀ j : Fin n, j ≠ i → s i - s j ≥ Δ) :
     ∀ j : Fin n, j ≠ i → Transformer.softmaxWeight s j ≤ Real.exp (-Δ) := by
   intro j hj
   unfold Transformer.softmaxWeight
   let D : ℝ := ∑ j', Real.exp (s j')
   have hD : 0 < D := by
-    haveI : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
+    have hne : Nonempty (Fin n) := (Fin.pos_iff_nonempty).mp hn
     exact Finset.sum_pos (fun _ _ => Real.exp_pos _) Finset.univ_nonempty
   -- e^{s_j} ≤ e^{-Δ}·e^{s_i} (hgap: s_i - s_j ≥ Δ)
   have hnum : Real.exp (s j) ≤ Real.exp (-Δ) * Real.exp (s i) := by
@@ -355,8 +355,7 @@ theorem hopfield_retrieval_error_bound {n : ℕ} (hn : 0 < n) (β Δ M : ℝ) (X
               simp [Finset.sum_const, nsmul_eq_mul]
       _ ≤ (n : ℝ) * Real.exp (-β * Δ) * M := by
               have hcard : (Finset.univ.erase i).card ≤ n := by
-                simpa using (Finset.card_le_univ (Finset.univ.erase i) :
-                  (Finset.univ.erase i).card ≤ Fintype.card (Fin n))
+                simp [Fintype.card_fin]
               have hc : ((Finset.univ.erase i).card : ℝ) ≤ (n : ℝ) := by exact_mod_cast hcard
               have he : 0 ≤ Real.exp (-β * Δ) * M := mul_nonneg (le_of_lt (Real.exp_pos (-β * Δ))) hM
               nlinarith

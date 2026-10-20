@@ -2,7 +2,7 @@
 title: lm_principle 当前状态
 source: session
 created: 2026-08-12
-last_confirmed: 2026-08-12
+last_confirmed: 2026-10-20
 audience: public
 stage: current
 schema_version: 2
@@ -33,6 +33,22 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   `simpa using hmul` 除法/乘积形式不匹配 → 加 `div_eq_mul_inv`（Murray/Training）；
   `mul_lt_mul_left` 需 `MulRightStrictMono` → 改 `mul_lt_mul_of_pos_left/right` +
   `lt_of_lt_of_eq`（Efficiency）；`Mathlib.Data.Real.Basic` → `Mathlib.Basic.Real.Basic`（12 文件）
+- ✅ **v4.35 lint 清零 (2026-10-20)**: 迁移后残留警告全部消除，`lake build` 与
+  `lake build LmPrinciple` 均 **0 error / 0 warning**（含 `rm -rf` 后的干净重建）。
+  - **module-system 警告**：本库无 module 头但依赖 `requiresModuleSystem := true` 的
+    mathlib → `lakefile.toml` 中 `[[lean_lib]] LmPrinciple` 加 `allowNonModules = true`
+  - **unused-variable (13 处)**：全部是"证明比定理声明更强"的情形（如 `hc1 : c < 1`
+    实际由 `hcont` 蕴含即可证）。保留公开签名的语义契约位，改名为 `_hc1`/`_hc0`/
+    `_hmc`/`_hβ`/`_hΔ`/`_ha`/`_hsum`/`_hS`/`_hb`/`_hd1`/`_hc0` 前缀（ArchCompare /
+    CriticalPoint / Fractal / Hopfield / Murray / Training）
+  - **info 级提示**：`ring` 在 `convert` 后无法闭合目标 → 改 `ring_nf`（ArchCompare 2 处）；
+    `Finset.card_le_univ` → `simp [Fintype.card_fin]`（Hopfield）；`if_pos/if_neg` →
+    `ite_eq_left/ite_eq_right`（Training）；`haveI : Nonempty (Fin n)` → `have hne`
+    （Transformer / Hopfield）；`simpa using (Real.log_inv x)` → `simp`（InfoDynamics）；
+    `Mathlib.Data.Complex.Basic` → `Mathlib.Basic.Complex.Basic`（Smoke / LMT）；
+    `simpa using hdecay` → `exact hdecay`（ArchCompare）
+  - 剩余仅 2 条 `info`（ArchCompare 的 `CNN.single_mul_apply` / `RNN.rnn_closed_form`
+    两个 `#check` 的刻意输出），非警告
 - ✅ **编译验证 (2026-08-12)**: `lake build` 全绿，16 条定理全部机器验证
   （mathlib 闭包 1758 模块源码编译；.lake ≈ 1.1GB）
 - ✅ **LmPrinciple/RNN.lean**: 线性 RNN 闭式解 = 因果卷积

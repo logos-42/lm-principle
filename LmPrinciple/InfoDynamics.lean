@@ -77,7 +77,7 @@ theorem one_sub_inv_le_log (x : ℝ) (hx : 0 < x) : 1 - 1 / x ≤ Real.log x := 
   have h := Real.log_le_sub_one_of_pos (show 0 < 1 / x from by positivity)
   -- log(1/x) ≤ 1/x - 1
   have hinv : Real.log (1 / x) = -Real.log x := by
-    simpa using (Real.log_inv x)
+    simp
   rw [hinv] at h
   linarith
 

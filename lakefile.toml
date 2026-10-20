@@ -48,3 +48,6 @@ path = ".lake/packages/Cli"
 
 [[lean_lib]]
 name = "LmPrinciple"
+# 本库不使用 Lean module system (无 module 头), 但依赖 mathlib (requiresModuleSystem := true)
+# -> 显式声明允许非 module-system 文件, 消除 Lake 的 module-system 警告
+allowNonModules = true

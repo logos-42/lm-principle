@@ -90,7 +90,7 @@ def rlhfPolicy {n : ℕ} (πref r : Fin n → ℝ) (β : ℝ) (i : Fin n) : ℝ 
 /-- **T3 RLHF 最优策略是合法分布**: π* = softmax(π_ref + r/β) 满足
     ①全支撑 (π*_i > 0) ②归一 (Σπ* = 1)——配分函数保证合法性。 -/
 theorem rlhf_policy_is_distribution {n : ℕ} (hn : 0 < n) (πref r : Fin n → ℝ) (β : ℝ)
-    (href : ∀ i, 0 < πref i) (hβ : 0 < β) :
+    (href : ∀ i, 0 < πref i) (_hβ : 0 < β) :
     (∀ i, 0 < rlhfPolicy πref r β i) ∧ (∑ i, rlhfPolicy πref r β i) = 1 := by
   let Z : ℝ := ∑ j, (πref j * Real.exp (r j / β))
   have hZ : 0 < Z := by
@@ -168,9 +168,9 @@ theorem dpo_loss_nonneg (x : ℝ) : 0 ≤ -Real.log (1 / (1 + Real.exp (-x))) :=
     ⟹ moe_error_bound 适用——稀疏化只保留 top-k 专家, 不损失
     "误差 ≤ 最差专家"的保证。 -/
 theorem sparse_moe_preserves_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
-    (hg : ∀ j, 0 ≤ g j) (hsum : (∑ j, g j) = 1)
+    (hg : ∀ j, 0 ≤ g j) (_hsum : (∑ j, g j) = 1)
     (hmax : ∀ j, |E j - y| ≤ M)
-    (S : Finset (Fin n)) (hS : S.Nonempty) (hT : 0 < ∑ j ∈ S, g j) :
+    (S : Finset (Fin n)) (_hS : S.Nonempty) (hT : 0 < ∑ j ∈ S, g j) :
     |(∑ j ∈ S, (g j / ∑ j' ∈ S, g j') * E j) - y| ≤ M := by
   -- 重归一凸组合 (全空间定义, S 外为 0)
   let g' : Fin n → ℝ := fun j => if j ∈ S then g j / (∑ j' ∈ S, g j') else 0
@@ -178,9 +178,9 @@ theorem sparse_moe_preserves_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
     intro j
     dsimp [g']
     by_cases hj : j ∈ S
-    · rw [if_pos hj]
+    · rw [ite_eq_left hj]
       exact div_nonneg (hg j) (le_of_lt hT)
-    · rw [if_neg hj]
+    · rw [ite_eq_right hj]
   have hsum' : (∑ j : Fin n, g' j) = 1 := by
     -- Σ g' = Σ_{j∈S} g_j/T + Σ_{j∉S} 0 = (1/T)·Σ_{j∈S}g_j = 1
     calc

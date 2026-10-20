@@ -97,7 +97,7 @@ theorem murray_law_algebra (r r₀ : ℝ) (hr : 0 < r)
     N(k₀+1)——**超过阈值, 加深必然更差** ("深度不是越深越好"的严格条件)。
     证明: 每步 N(L+1) - N(L) = Δ_L - mc < 0, 链式下降。 -/
 theorem depth_beyond_threshold_useless (Δ : ℕ → ℝ) (mc : ℝ) (k₀ : ℕ)
-    (hmc : 0 < mc) (hcross : ∀ k ≥ k₀, Δ k < mc) :
+    (_hmc : 0 < mc) (hcross : ∀ k ≥ k₀, Δ k < mc) :
     ∀ L : ℕ, k₀ + 1 < L →
       (∑ k ∈ range L, Δ k) - mc * L <
       (∑ k ∈ range (k₀ + 1), Δ k) - mc * (k₀ + 1) := by
@@ -201,7 +201,7 @@ theorem optimal_depth_exists (Δ : ℕ → ℝ) (mc : ℝ)
     ∝ 总截面积) 未建模——实验一悖论的真实根因是树级公式漏流量因子,
     见 scripts/diagnose_murray_cost.py (带流量守恒的树级成本
     最优收敛到 2^(-1/3))。 -/
-theorem murray_variational_optimal (a b r r0 : ℝ) (ha : 0 < a) (hb : 0 < b)
+theorem murray_variational_optimal (a b r r0 : ℝ) (_ha : 0 < a) (hb : 0 < b)
     (hr : 0 < r) (hr0 : 0 < r0) (hopt : r0 ^ 6 = 2 * a / b) :
     a / r0 ^ 4 + b * r0 ^ 2 ≤ a / r ^ 4 + b * r ^ 2 := by
   -- 代入 a = b·r0⁶/2 (从 hopt)
