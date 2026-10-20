@@ -37,7 +37,7 @@
   ⟺ 若条件 3 不成立 (∀k, Δ_k ≥ λ), 则 N 永不下降——"越深越好"是唯一情况,
      最优深度不存在 (∞)。这就是"最优深度存在"的精确充要条件。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
@@ -71,7 +71,6 @@ theorem murray_symmetric_ratio_cube (r r₀ : ℝ) (hr : 0 < r)
     _ = r₀ ^ 3 / (2 * r₀ ^ 3) := by rw [← h]
     _ = 1 / 2 := by
         field_simp [hr0]
-        ring
 
 /-- **C1c 对称分叉 = 维护成本最小**: 2r₁r₂ ≤ r₁² + r₂² ((x-y)² ≥ 0),
     等号当且仅当 r₁ = r₂——对称分叉在给定守恒约束下维护成本最小。 -/
@@ -100,10 +99,10 @@ theorem murray_law_algebra (r r₀ : ℝ) (hr : 0 < r)
 theorem depth_beyond_threshold_useless (Δ : ℕ → ℝ) (mc : ℝ) (k₀ : ℕ)
     (hmc : 0 < mc) (hcross : ∀ k ≥ k₀, Δ k < mc) :
     ∀ L : ℕ, k₀ + 1 < L →
-      (∑ k in range L, Δ k) - mc * L <
-      (∑ k in range (k₀ + 1), Δ k) - mc * (k₀ + 1) := by
+      (∑ k ∈ range L, Δ k) - mc * L <
+      (∑ k ∈ range (k₀ + 1), Δ k) - mc * (k₀ + 1) := by
   intro L hL
-  let N : ℕ → ℝ := fun m => (∑ k in range m, Δ k) - mc * m
+  let N : ℕ → ℝ := fun m => (∑ k ∈ range m, Δ k) - mc * m
   -- 单调: k₀+1 ≤ m ⟹ N(m) ≤ N(k₀+1) (每步 Δ_k < mc)
   have hchain : ∀ m : ℕ, k₀ + 1 ≤ m → N m ≤ N (k₀ + 1) := by
     intro m
@@ -120,12 +119,12 @@ theorem depth_beyond_threshold_useless (Δ : ℕ → ℝ) (mc : ℝ) (k₀ : ℕ
             dsimp [N]
             have hΔ : Δ m < mc := hcross m (by omega : k₀ ≤ m)
             calc
-              (∑ k in range (m + 1), Δ k) - mc * (m + 1 : ℕ)
-                  = (∑ k in range m, Δ k) - mc * m + (Δ m - mc) := by
+              (∑ k ∈ range (m + 1), Δ k) - mc * (m + 1 : ℕ)
+                  = (∑ k ∈ range m, Δ k) - mc * m + (Δ m - mc) := by
                       rw [sum_range_succ]
                       rw [Nat.cast_add]
                       ring_nf
-              _ < (∑ k in range m, Δ k) - mc * m := by linarith
+              _ < (∑ k ∈ range m, Δ k) - mc * m := by linarith
           exact le_trans (le_of_lt hstep) hih'
   -- 严格: k₀+1 < m ⟹ N(m) < N(k₀+1) (首步从 m-1 严格下降)
   have hchain_lt : ∀ m : ℕ, k₀ + 1 < m → N m < N (k₀ + 1) := by
@@ -135,7 +134,7 @@ theorem depth_beyond_threshold_useless (Δ : ℕ → ℝ) (mc : ℝ) (k₀ : ℕ
     have hstep : N m < N (m - 1) := by
       dsimp [N]
       -- 拆 Σ_{k<m} = Σ_{k<m-1} + Δ(m-1) (m = (m-1)+1)
-      have hsum : (∑ k in range m, Δ k) = (∑ k in range (m - 1), Δ k) + Δ (m - 1) := by
+      have hsum : (∑ k ∈ range m, Δ k) = (∑ k ∈ range (m - 1), Δ k) + Δ (m - 1) := by
         have hcast : m = (m - 1) + 1 := by omega
         conv_lhs => rw [hcast]
         rw [sum_range_succ]
@@ -160,11 +159,11 @@ theorem depth_beyond_threshold_useless (Δ : ℕ → ℝ) (mc : ℝ) (k₀ : ℕ
     (∀k, Δ_k ≥ λ), N 永不下降——最优深度不存在 ("越深越好")。 -/
 theorem optimal_depth_exists (Δ : ℕ → ℝ) (mc : ℝ)
     (hmc : 0 < mc) (hcross : ∃ k₀ : ℕ, ∀ k ≥ k₀, Δ k < mc) :
-    ∃ L : ℕ, ∀ L' : ℕ, (∑ k in range L', Δ k) - mc * L' ≤
-      (∑ k in range L, Δ k) - mc * L := by
+    ∃ L : ℕ, ∀ L' : ℕ, (∑ k ∈ range L', Δ k) - mc * L' ≤
+      (∑ k ∈ range L, Δ k) - mc * L := by
   rcases hcross with ⟨k₀, hk₀⟩
   -- 有限集 {0, ..., k₀+1} 上取最大值
-  let N : Fin (k₀ + 2) → ℝ := fun i => (∑ k in range i.1, Δ k) - mc * i.1
+  let N : Fin (k₀ + 2) → ℝ := fun i => (∑ k ∈ range i.1, Δ k) - mc * i.1
   have hfinite : (Finset.univ : Finset (Fin (k₀ + 2))).Nonempty := Finset.univ_nonempty
   have hmax := Finset.exists_max_image (Finset.univ : Finset (Fin (k₀ + 2))) N hfinite
   rcases hmax with ⟨i, hi_in, hi⟩
@@ -177,8 +176,8 @@ theorem optimal_depth_exists (Δ : ℕ → ℝ) (mc : ℝ)
   · have hgt : k₀ + 1 < L' := by omega
     have huseless := depth_beyond_threshold_useless Δ mc k₀ hmc hk₀ L' hgt
     have hle2 := hi ⟨k₀ + 1, by omega⟩ (by simp)
-    have hN : (∑ k in range (k₀ + 1), Δ k) - mc * (k₀ + 1) ≤
-        (∑ k in range i.1, Δ k) - mc * i.1 := by
+    have hN : (∑ k ∈ range (k₀ + 1), Δ k) - mc * (k₀ + 1) ≤
+        (∑ k ∈ range i.1, Δ k) - mc * i.1 := by
       simpa [N] using hle2
     exact le_trans (le_of_lt huseless) hN
 
@@ -277,7 +276,7 @@ theorem power_law_marginal_decays (c : ℝ) (hc : 0 < c) :
     -- c·(1/(j+1)²) < c·(1/(k+1)²)
     have hmul : c * (1 / (j + 1 : ℝ) ^ 2) < c * (1 / (k + 1 : ℝ) ^ 2) :=
       mul_lt_mul_of_pos_left hrecip hc
-    simpa using hmul
+    simpa [div_eq_mul_inv] using hmul
   · intro mc hmc
     -- Archimedean: ∃ n, c/λ < n——取 k₀ = n+1
     rcases exists_nat_gt (c / mc) with ⟨n, hn⟩
@@ -300,7 +299,7 @@ theorem power_law_marginal_decays (c : ℝ) (hc : 0 < c) :
     have hck2 : c / (k + 1 : ℝ) ^ 2 ≤ c / (k + 1 : ℝ) := by
       have hmul : c * (1 / (k + 1 : ℝ) ^ 2) ≤ c * (1 / (k + 1 : ℝ)) :=
         mul_le_mul_of_nonneg_left hkk (le_of_lt hc)
-      simpa using hmul
+      simpa [div_eq_mul_inv] using hmul
     exact lt_of_le_of_lt hck2 hck
 
 /-- **C4 幂律收益 ⟹ 最优深度存在**: Δ_k = c/(k+1)² (c > 0),
@@ -308,8 +307,8 @@ theorem power_law_marginal_decays (c : ℝ) (hc : 0 < c) :
     有限最优深度 L* 存在 ("深度不是越深越好"对幂律收益的严格结论)。 -/
 theorem power_law_optimal_depth (c mc : ℝ) (hc : 0 < c) (hmc : 0 < mc) :
     ∃ L : ℕ, ∀ L' : ℕ,
-      (∑ k in range L', c / (k + 1 : ℝ) ^ 2) - mc * L' ≤
-      (∑ k in range L, c / (k + 1 : ℝ) ^ 2) - mc * L := by
+      (∑ k ∈ range L', c / (k + 1 : ℝ) ^ 2) - mc * L' ≤
+      (∑ k ∈ range L, c / (k + 1 : ℝ) ^ 2) - mc * L := by
   have hcross : ∃ k₀ : ℕ, ∀ k ≥ k₀, c / (k + 1 : ℝ) ^ 2 < mc :=
     (power_law_marginal_decays c hc).2 mc hmc
   exact optimal_depth_exists (fun k => c / (k + 1 : ℝ) ^ 2) mc hmc hcross

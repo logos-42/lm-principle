@@ -22,7 +22,7 @@ z_{n+1} = a·z_n + b·x_n,  a = e^{Δλ} ∈ ℂ
 (I(h;a*_fact) + I(h;a*_cf) ≤ R, Fano 不等式, PAC-Bayes)
 等待用户的假设与 mathlib InformationTheory 支持, 见文件尾部注释。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Fintype.Card
 import Mathlib.Algebra.BigOperators.Ring.Finset
@@ -90,7 +90,7 @@ theorem cssm_eq_rnn (a b : ℂ) (x : ℕ → ℂ) :
 
 /-- **SSM 闭式解**: z(n+1) = Σ_k a^{n-k}·b·x(k) (因果卷积, 复用 RNN 定理) -/
 theorem cssm_closed_form (a b : ℂ) (x : ℕ → ℂ) :
-    ∀ n : ℕ, cssm a b x (n + 1) = ∑ k in range (n + 1), a ^ (n - k) * (b * x k) := by
+    ∀ n : ℕ, cssm a b x (n + 1) = ∑ k ∈ range (n + 1), a ^ (n - k) * (b * x k) := by
   intro n
   rw [cssm_eq_rnn]
   exact RNN.rnn_closed_form (R := ℂ) a (fun k => b * x k) n

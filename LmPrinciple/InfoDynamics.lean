@@ -38,7 +38,7 @@
        (Fractal.lean) + 分形参数分配 (Fractal.lean) = "自由能最小化
        依赖的信息结构" = 恒等/门控回馈 + 全局交互 + 前缀参数集中。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -271,7 +271,7 @@ theorem hypothesis_verification :
       (∀ j, |E j - y| ≤ M) → |(∑ j, g j * E j) - y| ≤ M) ∧
     (∀ (n B : ℕ) (Δ : ℕ → ℝ), B ≤ n →
       (∀ {k j : ℕ}, k < j → j < n → Δ j < Δ k) →
-      (∑ k in range B, Δ k) - (B : ℝ) / n * (∑ k in range n, Δ k) ≥ 0) := by
+      (∑ k ∈ range B, Δ k) - (B : ℝ) / n * (∑ k ∈ range n, Δ k) ≥ 0) := by
   constructor
   · intro f c hcont hc1 hc0
     exact ArchCompare.residual_no_collapse_n f c hcont hc1 hc0

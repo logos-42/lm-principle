@@ -12,7 +12,7 @@
 
 定理均在任意交换半环 R 上证明 (ℝ/ℂ 都是实例).
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Linarith
@@ -35,7 +35,7 @@ def rnn {R : Type*} [Semiring R] (w : R) (x : ℕ → R) : ℕ → R
 
 /-- **闭式解**: RNN 输出 = 输入与核 w^(·) 的因果卷积 -/
 theorem rnn_closed_form {R : Type*} [CommSemiring R] (w : R) (x : ℕ → R) :
-    ∀ n : ℕ, rnn w x (n + 1) = ∑ k in range (n + 1), w ^ (n - k) * x k := by
+    ∀ n : ℕ, rnn w x (n + 1) = ∑ k ∈ range (n + 1), w ^ (n - k) * x k := by
   intro n
   induction n with
   | zero =>
@@ -48,14 +48,14 @@ theorem rnn_closed_form {R : Type*} [CommSemiring R] (w : R) (x : ℕ → R) :
         have hsub : n - k + 1 = n + 1 - k := by omega
         rw [← hsub, pow_succ, mul_comm]
       calc
-        w * (∑ k in range (n + 1), w ^ (n - k) * x k) + x (n + 1)
-            = ∑ k in range (n + 1), w ^ (n + 1 - k) * x k + x (n + 1) := by
+        w * (∑ k ∈ range (n + 1), w ^ (n - k) * x k) + x (n + 1)
+            = ∑ k ∈ range (n + 1), w ^ (n + 1 - k) * x k + x (n + 1) := by
                 rw [Finset.mul_sum]
                 congr 1
                 apply Finset.sum_congr rfl
                 intro k hk
                 rw [← mul_assoc, hmul k hk]
-        _ = ∑ k in range (n + 2), w ^ (n + 1 - k) * x k := by
+        _ = ∑ k ∈ range (n + 2), w ^ (n + 1 - k) * x k := by
                 rw [Finset.sum_range_succ (fun k : ℕ => w ^ (n + 1 - k) * x k) (n + 1)]
                 simp
 
@@ -80,7 +80,7 @@ theorem rnn_stable (w : ℝ) (x : ℕ → ℝ) (M : ℝ)
         |rnn w x (n + 2)| ≤ |w| * |rnn w x (n + 1)| + |x (n + 1)| := by
             rw [rnn, step]
             calc
-              |w * rnn w x (n + 1) + x (n + 1)| ≤ |w * rnn w x (n + 1)| + |x (n + 1)| := abs_add _ _
+              |w * rnn w x (n + 1) + x (n + 1)| ≤ |w * rnn w x (n + 1)| + |x (n + 1)| := abs_add_le _ _
               _ = |w| * |rnn w x (n + 1)| + |x (n + 1)| := by rw [abs_mul]
         _ ≤ |w| * (M / (1 - |w|)) + M := by
             nlinarith [mul_le_mul_of_nonneg_left ih (abs_nonneg w), hb (n + 1)]

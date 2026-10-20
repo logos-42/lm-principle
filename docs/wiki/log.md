@@ -12,6 +12,7 @@ schema_version: 2
 
 | 日期 | 类型 | 主题 | 要点 |
 |------|------|------|------|
+| 2026-10-20 | 迁移 | Lean 4.21→4.35 + mathlib 308445d→56a0058 | **v4.35 迁移完成**: lean-toolchain v4.21.0→v4.35.0，mathlib 308445d→56a0058 (tag v4.35.0)；`lake build` 全绿，15 模块编译通过，83 条定理无 sorry。破坏性变更修复: `∑ k in s` 记法移除→`∑ k ∈ s` (9 文件 104 处)；`abs_add`→`abs_add_le` (RNN/ArchCompare)；`AddMonoidAlgebra.single_mul_apply`→`coeff_single_mul_apply`+`.coeff` (CNN)；`Finset.sum_eq_add_sum_diff_singleton`→`Finset.add_sum_erase` (Hopfield 5 处)；`field_simp` 更强→删冗余 `ring` (Fractal/Hopfield/Murray)；`simpa using hmul` 加 `div_eq_mul_inv` (Murray/Training)；`mul_lt_mul_left` 改 `mul_lt_mul_of_pos_left/right`+`lt_of_lt_of_eq` (Efficiency)；`Mathlib.Data.Real.Basic`→`Mathlib.Basic.Real.Basic` (12 文件)。环境: 当前机 macOS，依赖以符号链接复用 NavierStokesAndEuler 的 v4.35.0 集。 |
 | 2026-08-17 | 判定实验 | E7: Δ_k 递减性在真实 LM 上是否恢复 + H100 算力评估 | **E7 (experiments_e7.py, 3 seeds, 12 层深度监督, 200K 字符真实语料, vocab=1147)**: Δ₁=+2.95, Δ₂=+0.42 (第二层仍有正收益——合成任务此处已 -2.24), 此后 ±0.17 噪声震荡; 递减一致性 6/11=55% (合成 45%, 随机 50%)。**三结论**: ①合成线性任务的"证伪"是任务饱和伪影 (任务无深度收益), 真实任务确有连续深度收益 ②"Δ 严格递减"前提对真实网络过强——真实给"近似递减+噪声" ③由此 H100 实验核心指标改为"递减一致性随规模的单调性" (显著>70%=规模恢复, ≈50%=真证伪), 二值判定不白烧钱。**H100 预算 (estimate_h100_budget.py)**: 350M 全套矩阵 19 模型 = 373 卡时/$933/1.5 天 (10 卡); 1.3B = $4623/7.7 天; 7B = $124K/207 天 ✗。推荐 P0 真实语料深度扫描 + P1 β_eff 并入同批模型, 不做 7B。定理缺口: 需补"近似递减 ⟹ kstar 近优"扰动版本 (Lean 可做)。 |
 | 2026-08-13 | Maxwell | 麦克斯韦方程 × 现有数学 (基础 + 假设扩展 + 预言) | 新模块 Maxwell.lean (+4 定理, 总计 79→83): 1D 周期格点 (ZMod N) 麦克斯韦——cross_term_zero (telescoping 对消), maxwell_energy_conservation (无质量守恒), massive_energy_decay (质量项 dH/dt=-m²ΣE²), massive_energy_non_increasing。预言: m_G=√3·M₀ ⟹ τ_G=1/(6M₀²) (条件性)。README/论文两版更新 (§maxwell)。关键坑: Fin 减法是截断的 (0-1=0), 周期格点必须用 ZMod N; ∑ n, A+B 无括号时 ∑ 只绑定 A。 |
 | 2026-08-13 | Hopfield | 实验扩展: β_eff×深度 + 真实 LM ΔE_k | E5: 每层实际逆温度 β_eff=logit spread 深层更集中 (depth8: 0.64→7.85), 锁定区层数随深度增加; ΔE_k 不递减 (全正 0-57%)。E6: 字符级 LM (vocab=91, loss 3.30 vs 基线 4.51 真实学习) 的 ΔE_k 全正仅 1/3 ⟹ 排除合成任务伪影, 负面结论成立。弱观察: β_eff 峰值层=能量下降层。 |
@@ -241,3 +242,28 @@ schema_version: 2
 - **作者**: Yuanjie Liu, yuanjieliu65@gmail.com
 - **遗留**: 本机无 LaTeX 未编译验证（待 Overleaf）；`shape2026` 引用 URL 仍是 example.com 占位，待真实链接
 - 本次会话一并提交推送
+
+## [2026-10-20] 会话 | Lean 4.21 → 4.35 工具链 + mathlib 迁移
+
+- 目标: 将 lm-principle 从 Lean 4.21.0 / mathlib 308445d 迁移到 Lean 4.35.0 / mathlib 56a0058 (tag v4.35.0)
+- 环境发现: 当前工作机 macOS (darwin)，github.com 可达，elan 已装 v4.35.0；
+  `.lake/packages/*` 已是 `/Users/apple/Downloads/NavierStokesAndEuler/.lake/packages/*`
+  的符号链接，该集已是 v4.35.0 同代 rev (mathlib 56a0058 + 8 依赖均 2026-10)，
+  且含 8643 个预编译 olean → 无需全量重编译
+- 改动 `lean-toolchain` v4.21.0 → v4.35.0 后全量 `lake build`，按报错逐项修复:
+  - `∑ k in s` 记法被**移除** (v4.35 硬语法错误 `unexpected token 'in'`) → `∑ k ∈ s`
+    （探针文件 ZTest.lean 确认；9 文件共 104 处，perl UTF-8 脚本全局替换）
+  - `abs_add` → `abs_add_le`（RNN/ArchCompare 三角不等式）
+  - `AddMonoidAlgebra.single_mul_apply` → `AddMonoidAlgebra.coeff_single_mul_apply`
+    + 用 `.coeff` 取值（v4.35 中 AddMonoidAlgebra ℝ ℤ 不再能当函数直接调用；CNN）
+  - `Finset.sum_eq_add_sum_diff_singleton` 被移除 → `Finset.add_sum_erase`
+    （参数序 (f, hi)，输出已含 `∑ x ∈ s.erase a` → 去掉冗余 `univ_diff_singleton_erase`；Hopfield 5 处）
+  - `field_simp` 现能闭合更多目标 → 删冗余 `ring`（Fractal/Hopfield/Murray 各 1 处 "No goals"）
+  - `simpa using hmul` 在 v4.35 下 `c/x` 与 `c*x⁻¹` 不再定义相等 → 加 `div_eq_mul_inv`（Murray/Training）
+  - `mul_lt_mul_left` 需 `MulRightStrictMono` 实例（合成失败）→ 改 `mul_lt_mul_of_pos_left/right`
+    + `lt_of_lt_of_eq`（Efficiency: 3d²<n 与 n²/(3d²) 两段不等式）
+  - 弃用导入 `Mathlib.Data.Real.Basic` → `Mathlib.Basic.Real.Basic`（编译器建议的新路径，12 文件）
+- ✅ **验证**: `lake build` EXIT=0、无 error、扫描无 sorry/admit/axiom、定理计数 83、15 模块均产 olean
+- 残留 warning (非致命): 部分 mathlib 模块提示 module-system（`consider adding 'module'`）建议，未改
+- 同步更新 current-status.md（工具链/依赖版本、迁移小结、∑ in 移除、macOS 环境说明）与本文档
+- 待提交推送

@@ -27,7 +27,7 @@ x_new = X·softmax(βXᵀx) 等价于 Transformer 注意力。
 V 凸包内); 本文件把同一结构明确映射到 Hopfield 能量框架, 并补上
 离散 Hopfield 的能量下降定理 (能量最小化的机器验证)。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Linarith
@@ -82,35 +82,32 @@ theorem energy_difference {N : ℕ} (w : Fin N → Fin N → ℝ) (s s' : Fin N 
                 dsimp [inner]
                 have hsplit : (∑ b, w i b * (s' i * s' b - s i * s b))
                     = w i i * (s' i * s' i - s i * s i)
-                      + (∑ b in Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := by
-                  rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i)
-                    (fun b => w i b * (s' i * s' b - s i * s b)),
-                    univ_diff_singleton_erase i]
+                      + (∑ b ∈ Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := by
+                  rw [← Finset.add_sum_erase Finset.univ (fun b => w i b * (s' i * s' b - s i * s b)) (Finset.mem_univ i)]
                 calc
                   (∑ b, w i b * (s' i * s' b - s i * s b))
                       = w i i * (s' i * s' i - s i * s i)
-                          + (∑ b in Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := hsplit
-                  _ = (∑ b in Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := by
+                          + (∑ b ∈ Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := hsplit
+                  _ = (∑ b ∈ Finset.univ.erase i, w i b * (s' i * s' b - s i * s b)) := by
                           rw [hii]
                           ring
-                  _ = (∑ b in Finset.univ.erase i, w i b * (s' i - s i) * s b) := by
+                  _ = (∑ b ∈ Finset.univ.erase i, w i b * (s' i - s i) * s b) := by
                           apply Finset.sum_congr rfl
                           intro b hb
                           have hbne : b ≠ i := (Finset.mem_erase.mp hb).1
                           rw [hrest b hbne]
                           ring
-                  _ = (s' i - s i) * (∑ b in Finset.univ.erase i, w i b * s b) := by
-                          have hre : (∑ b in Finset.univ.erase i, w i b * (s' i - s i) * s b)
-                              = ∑ b in Finset.univ.erase i, (s' i - s i) * (w i b * s b) := by
+                  _ = (s' i - s i) * (∑ b ∈ Finset.univ.erase i, w i b * s b) := by
+                          have hre : (∑ b ∈ Finset.univ.erase i, w i b * (s' i - s i) * s b)
+                              = ∑ b ∈ Finset.univ.erase i, (s' i - s i) * (w i b * s b) := by
                             apply Finset.sum_congr rfl
                             intro b hb
                             ring
                           rw [hre, ← Finset.mul_sum]
                   _ = (s' i - s i) * (∑ b, w i b * s b) := by
-                          have hdrop : (∑ b in Finset.univ.erase i, w i b * s b) = ∑ b, w i b * s b := by
-                            rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i)
-                              (fun b => w i b * s b)]
-                            rw [univ_diff_singleton_erase i, hii]
+                          have hdrop : (∑ b ∈ Finset.univ.erase i, w i b * s b) = ∑ b, w i b * s b := by
+                            rw [← Finset.add_sum_erase Finset.univ (fun b => w i b * s b) (Finset.mem_univ i)]
+                            rw [hii]
                             ring
                           rw [hdrop]
               -- 对 a ≠ i: inner a = w_ai·s_a·(s'_i - s_i) (只有 b=i 项非零)
@@ -136,29 +133,27 @@ theorem energy_difference {N : ℕ} (w : Fin N → Fin N → ℝ) (s s' : Fin N 
                             exfalso
                             exact hnotin (Finset.mem_univ i)
               -- 外层拆 a = i
-              have houter : (∑ a, inner a) = inner i + (∑ a in Finset.univ.erase i, inner a) := by
-                rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i) inner,
-                    univ_diff_singleton_erase i]
-              have hne_sum : (∑ a in Finset.univ.erase i, inner a)
+              have houter : (∑ a, inner a) = inner i + (∑ a ∈ Finset.univ.erase i, inner a) := by
+                rw [← Finset.add_sum_erase Finset.univ inner (Finset.mem_univ i)]
+              have hne_sum : (∑ a ∈ Finset.univ.erase i, inner a)
                   = (s' i - s i) * (∑ a, w i a * s a) := by
                 calc
-                  (∑ a in Finset.univ.erase i, inner a)
-                      = (∑ a in Finset.univ.erase i, w a i * s a * (s' i - s i)) := by
+                  (∑ a ∈ Finset.univ.erase i, inner a)
+                      = (∑ a ∈ Finset.univ.erase i, w a i * s a * (s' i - s i)) := by
                           apply Finset.sum_congr rfl
                           intro a ha
                           exact hinner_ne a (Finset.mem_erase.mp ha).1
-                  _ = (s' i - s i) * (∑ a in Finset.univ.erase i, w a i * s a) := by
-                          have hre : (∑ a in Finset.univ.erase i, w a i * s a * (s' i - s i))
-                              = ∑ a in Finset.univ.erase i, (s' i - s i) * (w a i * s a) := by
+                  _ = (s' i - s i) * (∑ a ∈ Finset.univ.erase i, w a i * s a) := by
+                          have hre : (∑ a ∈ Finset.univ.erase i, w a i * s a * (s' i - s i))
+                              = ∑ a ∈ Finset.univ.erase i, (s' i - s i) * (w a i * s a) := by
                             apply Finset.sum_congr rfl
                             intro a ha
                             ring
                           rw [hre, ← Finset.mul_sum]
                   _ = (s' i - s i) * (∑ a, w i a * s a) := by
-                          have hdrop : (∑ a in Finset.univ.erase i, w a i * s a) = ∑ a, w a i * s a := by
-                            rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i)
-                              (fun a => w a i * s a)]
-                            rw [univ_diff_singleton_erase i, hii]
+                          have hdrop : (∑ a ∈ Finset.univ.erase i, w a i * s a) = ∑ a, w a i * s a := by
+                            rw [← Finset.add_sum_erase Finset.univ (fun a => w a i * s a) (Finset.mem_univ i)]
+                            rw [hii]
                             ring
                           rw [hdrop]
                           -- Σ_a w_ai·s_a = Σ_a w_ia·s_a (对称)
@@ -168,7 +163,7 @@ theorem energy_difference {N : ℕ} (w : Fin N → Fin N → ℝ) (s s' : Fin N 
                             rw [hsym i a]
                           rw [hswap]
               calc
-                (∑ a, inner a) = inner i + (∑ a in Finset.univ.erase i, inner a) := houter
+                (∑ a, inner a) = inner i + (∑ a ∈ Finset.univ.erase i, inner a) := houter
                 _ = (s' i - s i) * (∑ b, w i b * s b) + (s' i - s i) * (∑ a, w i a * s a) := by
                         rw [hinner_i, hne_sum]
                 _ = 2 * (s' i - s i) * (∑ j, w i j * s j) := by
@@ -231,7 +226,6 @@ theorem hopfield_update_eq_attn {n : ℕ} (hn : 0 < n) (β : ℝ) (hβ : β ≠ 
   have hinner : (fun j' : Fin n => β * x * X j') = fun j' : Fin n => x * X j' / (1 / β) := by
     funext j'
     field_simp [hβ]
-    ring
   rw [← hinner]
 
 /-- **softmax 权重集中性 (β 分岔的定量形式)**: 若模式 i 与所有其他模式的
@@ -333,26 +327,25 @@ theorem hopfield_retrieval_error_bound {n : ℕ} (hn : 0 < n) (β Δ M : ℝ) (X
     rw [hwsum]
     ring
   -- Σ_{j≠i} w_j ≤ (n-1)·e^{-βΔ} ≤ n·e^{-βΔ}: 用于 Σ_j w_j |X_j - X_i| 中 i 项为零
-  have hsplit : (∑ j, w j * |X j - X i|) = ∑ j in Finset.univ.erase i, w j * |X j - X i| := by
+  have hsplit : (∑ j, w j * |X j - X i|) = ∑ j ∈ Finset.univ.erase i, w j * |X j - X i| := by
     -- i 项: w_i * |X_i - X_i| = 0
     calc
-      (∑ j, w j * |X j - X i|) = w i * |X i - X i| + ∑ j in Finset.univ.erase i, w j * |X j - X i| := by
-          rw [Finset.sum_eq_add_sum_diff_singleton (Finset.mem_univ i) (fun j => w j * |X j - X i|),
-              univ_diff_singleton_erase i]
-      _ = ∑ j in Finset.univ.erase i, w j * |X j - X i| := by simp
-  have hne_le : (∑ j in Finset.univ.erase i, w j * |X j - X i|)
+      (∑ j, w j * |X j - X i|) = w i * |X i - X i| + ∑ j ∈ Finset.univ.erase i, w j * |X j - X i| := by
+          rw [← Finset.add_sum_erase Finset.univ (fun j => w j * |X j - X i|) (Finset.mem_univ i)]
+      _ = ∑ j ∈ Finset.univ.erase i, w j * |X j - X i| := by simp
+  have hne_le : (∑ j ∈ Finset.univ.erase i, w j * |X j - X i|)
       ≤ (n : ℝ) * Real.exp (-β * Δ) * M := by
     calc
-      (∑ j in Finset.univ.erase i, w j * |X j - X i|)
-          ≤ (∑ j in Finset.univ.erase i, w j * M) := by
+      (∑ j ∈ Finset.univ.erase i, w j * |X j - X i|)
+          ≤ (∑ j ∈ Finset.univ.erase i, w j * M) := by
               apply Finset.sum_le_sum
               intro j hj
               have hjn : j ≠ i := (Finset.mem_erase.mp hj).1
               exact mul_le_mul_of_nonneg_left (hbound j) (hw0 j)
-      _ = (∑ j in Finset.univ.erase i, w j) * M := by
+      _ = (∑ j ∈ Finset.univ.erase i, w j) * M := by
               rw [← Finset.sum_mul]
-      _ ≤ (∑ j in Finset.univ.erase i, Real.exp (-β * Δ)) * M := by
-              have hsumle : (∑ j in Finset.univ.erase i, w j) ≤ ∑ j in Finset.univ.erase i, Real.exp (-β * Δ) := by
+      _ ≤ (∑ j ∈ Finset.univ.erase i, Real.exp (-β * Δ)) * M := by
+              have hsumle : (∑ j ∈ Finset.univ.erase i, w j) ≤ ∑ j ∈ Finset.univ.erase i, Real.exp (-β * Δ) := by
                 apply Finset.sum_le_sum
                 intro j hj
                 have hjn : j ≠ i := (Finset.mem_erase.mp hj).1
@@ -371,7 +364,7 @@ theorem hopfield_retrieval_error_bound {n : ℕ} (hn : 0 < n) (β Δ M : ℝ) (X
   rw [hiden]
   calc
     |∑ j, w j * (X j - X i)| ≤ ∑ j, w j * |X j - X i| := htri
-    _ = ∑ j in Finset.univ.erase i, w j * |X j - X i| := hsplit
+    _ = ∑ j ∈ Finset.univ.erase i, w j * |X j - X i| := hsplit
     _ ≤ (n : ℝ) * Real.exp (-β * Δ) * M := hne_le
 
 end Hopfield

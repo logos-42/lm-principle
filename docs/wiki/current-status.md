@@ -13,14 +13,26 @@ tags: [status, lean, mathlib]
 
 ## 项目定位
 
-用 **Lean 4 + mathlib v4.21.0** 形式化"大模型的数学第一性原理"，以
+用 **Lean 4 + mathlib v4.35.0** 形式化"大模型的数学第一性原理"，以
 LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Transformer 三大架构。
 
 ## 已完成
 
-- ✅ **Lean 环境**: elan + Lean 4.21.0；mathlib v4.21.0（rev 308445d, 2025-06-30）
-  手动物化：github.com 对进程内 libcurl 不可达 → SSH 克隆 + path require +
-  8 个依赖固定同代 rev
+- ✅ **Lean 环境**: elan + Lean 4.35.0；mathlib v4.35.0（rev 56a0058, 2026-10-13, tag
+  v4.35.0）。当前工作机 macOS（darwin）：github.com 可达、elan 已装 v4.35.0；
+  `.lake/packages/*` 以符号链接指向 `../NavierStokesAndEuler/.lake/packages/*`
+  （该集已是 v4.35.0 同代 rev：mathlib 56a0058 + batteries/Qq/aesop/proofwidgets/
+  importGraph/LeanSearchClient/plausible/Cli 均 2026-10 时代）
+- ✅ **v4.35 迁移 (2026-10-20)**: `lean-toolchain` v4.21.0 → v4.35.0，mathlib
+  308445d → 56a0058（tag v4.35.0）；`lake build` 全绿，83 条定理无 sorry。破坏性变更修复：
+  `∑ k in s` 记法被**移除** → `∑ k ∈ s`（9 文件 104 处）；`abs_add` → `abs_add_le`
+  （RNN/ArchCompare）；`AddMonoidAlgebra.single_mul_apply` →
+  `AddMonoidAlgebra.coeff_single_mul_apply` + `.coeff` 取值（CNN）；
+  `Finset.sum_eq_add_sum_diff_singleton` 移除 → `Finset.add_sum_erase`（Hopfield 5 处）；
+  `field_simp` 现闭合更多目标 → 删冗余 `ring`（Fractal/Hopfield/Murray）；
+  `simpa using hmul` 除法/乘积形式不匹配 → 加 `div_eq_mul_inv`（Murray/Training）；
+  `mul_lt_mul_left` 需 `MulRightStrictMono` → 改 `mul_lt_mul_of_pos_left/right` +
+  `lt_of_lt_of_eq`（Efficiency）；`Mathlib.Data.Real.Basic` → `Mathlib.Basic.Real.Basic`（12 文件）
 - ✅ **编译验证 (2026-08-12)**: `lake build` 全绿，16 条定理全部机器验证
   （mathlib 闭包 1758 模块源码编译；.lake ≈ 1.1GB）
 - ✅ **LmPrinciple/RNN.lean**: 线性 RNN 闭式解 = 因果卷积
@@ -154,18 +166,19 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
 CRYPT_E_REVOCATION_OFFLINE + 间歇 TCP 阻断）→ 一切 lake 网络操作（Reservoir 解析、
 cache 下载、tag 解析）全部失败。解法 = **全离线物化**：
 
-1. **工具链**: `lean-toolchain` 固定 `leanprover/lean4:v4.21.0`（elan 已装）
-2. **mathlib**: SSH 克隆到 `.lake/packages/mathlib`，checkout **原始 v4.21.0 提交
-   308445d**（2025-06-30）。⚠️ 该 tag 后来被移动过：tag 上的 lake-manifest.json
-   pin 的 8 个依赖是 4.34 时代 rev（与 lean 4.21 不兼容）——必须用
+1. **工具链**: `lean-toolchain` 固定 `leanprover/lean4:v4.35.0`（elan 已装；当前机已装 v4.35.0）
+2. **mathlib**: 当前工作机（macOS）`.lake/packages/mathlib` 为指向
+   `../NavierStokesAndEuler/.lake/packages/mathlib` 的符号链接，已 checkout **tag
+   v4.35.0 提交 56a0058**（2026-10-13）。⚠️ 该 tag 可能已被移动：若重新物化，须用
    `git log --lean-toolchain` 找到原始提交，取其**自己的** manifest 里的 dep rev
+   （全 4.35 时代，lean-toolchain 均 = v4.35.0）
 3. **8 个依赖**（batteries/Qq/aesop/proofwidgets/importGraph/LeanSearchClient/
-   plausible/Cli）: SSH 克隆 + checkout mathlib@308445d manifest 里的精确 rev
-   （全 4.21 时代，lean-toolchain 均 = v4.21.0）
+   plausible/Cli）: 同样以符号链接复用 NavierStokesAndEuler 的依赖集，checkout
+   mathlib@56a0058 manifest 里的精确 rev（全 4.35 时代，lean-toolchain 均 = v4.35.0）
 4. **lakefile.toml**: mathlib + 8 依赖全部 `path` require → 解析完全离线，
    不需要 manifest / 网络 / Reservoir
 5. **构建**: 用**真实 lake 二进制**（elan shim 启动即解析默认工具链 v4.33.0 未装
-   → 尝试下载 → 假失败）: `~/.elan/toolchains/leanprover--lean4---v4.21.0/bin/lake.exe
+   → 尝试下载 → 假失败）: `~/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lake
    build`；前置 `MATHLIB_NO_CACHE_ON_UPDATE=1`（mathlib 的 post_update 钩子会拉缓存）
 
 **脚本索引**（全部在 `scripts/`，Windows 专用）:
@@ -187,20 +200,20 @@ cache 下载、tag 解析）全部失败。解法 = **全离线物化**：
 4. **验证标准**: `lake build` 全绿 + 扫描无 `sorry/admit/axiom` + 定理计数核对
 5. **wiki writeback**: 结果/坑/方法写回 current-status + log，`wiki_lint --strict=v2` 通过
 
-## 环境坑（本机 Windows）
+## 环境坑（历史 Windows + 当前 macOS）
 
 - curl schannel 吊销检查失败（CRYPT_E_REVOCATION_OFFLINE）：lake 进程内 libcurl
   无法关闭 → 只能 git（SSH）物化 mathlib
 - raw.githubusercontent.com / github.com 间歇不可达（无代理），SSH 协议可用
 - 后台命令 UTF-16 BOM 污染 → 长命令写 .sh 脚本再执行
-- lean-toolchain 别改回 v4.34.0-rc1（Batteries 语法不兼容，会编译失败）；
-  `scripts/setup_mathlib.sh` 是 Windows 专用
+- lean-toolchain 别改回 v4.34.0-rc1 或其他旧版（Batteries 语法不兼容，会编译失败）；
+  当前固定 v4.35.0；`scripts/setup_mathlib.sh` 是 Windows 专用
 - Lean 4.21 core 只有 omega；linarith/nlinarith/ring/field_simp 需
   `import Mathlib.Tactic.{Linarith, Ring, FieldSimp}`
 - importGraph 仓库名带连字符 `import-graph`（≠ importGraph），克隆前先查 manifest
-- `∑ x in s, f x` 记法已弃用（编译 warning）→ 用 `∑ x ∈ s, f x`
-- elan shim（~/.elan/bin/lake.exe）默认工具链解析到 v4.33.0（未装）→ 假失败，
-  一律用 `scripts/run_build.sh`（真实二进制）
+- `∑ x in s` 记法在 v4.35 **已被移除**（硬语法错误 `unexpected token 'in'`）→ 必须用 `∑ x ∈ s`
+- elan shim（~/.elan/bin/lake）默认工具链解析可能未装 → 假失败，
+  一律用 `~/.elan/toolchains/leanprover--lean4---v4.35.0/bin/lake`（真实二进制）
 
 ## 相关文档
 

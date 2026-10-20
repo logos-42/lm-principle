@@ -25,7 +25,7 @@
 注意: 本文件验证的是**离散格点代数的能量结构** (交叉项对消、质量项
 衰减率), 连续极限/微分形式的严格化留待 Analysis.Calculus。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Linarith

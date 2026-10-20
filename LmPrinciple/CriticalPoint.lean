@@ -36,7 +36,7 @@ namespace CriticalPoint
 
 /-- 净收益 N(L) = Σ_{k<L} Δ_k - λ·L -/
 def netBenefit (Δ : ℕ → ℝ) (mc : ℝ) (L : ℕ) : ℝ :=
-  (∑ k in range L, Δ k) - mc * L
+  (∑ k ∈ range L, Δ k) - mc * L
 
 /-- **临界点定理**: 边际收益 Δ_k 严格递减 (hdec) + 成本为正 (hmc)
     + 收益最终跌破成本 (hcross) ⟹

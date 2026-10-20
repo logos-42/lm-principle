@@ -12,7 +12,7 @@
 
 证明全部是有限和重排 (Equiv.sum_comp), 不需要任何分析.
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 import Mathlib.Algebra.Order.BigOperators.Group.Finset

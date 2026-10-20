@@ -12,6 +12,7 @@
 这就是"CNN 为什么共享权重还能识别平移目标"的数学根因.
 -/
 import Mathlib.Algebra.MonoidAlgebra.Basic
+import Mathlib.Algebra.MonoidAlgebra.Defs
 
 noncomputable section
 open scoped BigOperators
@@ -49,10 +50,9 @@ theorem translate_eq_translateR (a : ℤ) {R : Type*} [CommSemiring R] (f : Conv
 
 /-- 脉冲响应: 单点核卷积 = 平移 (X^a ⋆ g)(n) = r·g(n-a) -/
 theorem single_mul_apply {R : Type*} [Semiring R] (a : ℤ) (r : R) (g : Conv R) (n : ℤ) :
-    (AddMonoidAlgebra.single a r * g) n = r * g (n - a) := by
-  rw [AddMonoidAlgebra.single_mul_apply]
-  apply congrArg (fun z : ℤ => r * g z)
-  omega
+    (AddMonoidAlgebra.single a r * g).coeff n = r * g.coeff (n - a) := by
+  rw [AddMonoidAlgebra.coeff_single_mul_apply]
+  simp only [add_comm, ← sub_eq_add_neg]
 
 /- TODO(下次): 一般卷积逐点公式 (f ⋆ g)(n) = Σ_{k ∈ supp f} f(k)·g(n-k)
    需要 Finsupp 双层和展开 (mul_def + sum_apply), 非第一性原理必需 -/

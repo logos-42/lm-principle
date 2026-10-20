@@ -45,7 +45,7 @@
       序列的前缀 (浅层) = 参数利用效率最高的分配 (prefix_allocation_
       optimal)——"每参数的边际自由能下降"最大化。
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.FieldSimp
@@ -80,10 +80,9 @@ theorem attention_more_interactions_per_param (n d : ℝ) (hn : 0 < n) (hd : 0 <
   · intro h
     -- h : n < n²/(3d²) ⟹ n·(3d²) < n² ⟹ 3d² < n (除以 n > 0)
     have h1 : n * (3 * d ^ 2) < n ^ 2 := by
-      have hh := mul_lt_mul_of_pos_right h hden
-      -- hh : n·(3d²) < (n²/(3d²))·(3d²)
-      field_simp [ne_of_gt hden] at hh
-      exact hh
+      calc
+        n * (3 * d ^ 2) < (n ^ 2 / (3 * d ^ 2)) * (3 * d ^ 2) := mul_lt_mul_of_pos_right h hden
+        _ = n ^ 2 := by field_simp [ne_of_gt hden]
     have hnz : n ≠ 0 := ne_of_gt hn
     calc
       3 * d ^ 2 = (n * (3 * d ^ 2)) / n := by field_simp [hnz]
@@ -94,9 +93,7 @@ theorem attention_more_interactions_per_param (n d : ℝ) (hn : 0 < n) (hd : 0 <
   · intro h
     -- 3d² < n ⟹ n·(3d²) < n·n = n² ⟹ n < n²/(3d²) (除以 3d² > 0)
     have h1 : n * (3 * d ^ 2) < n ^ 2 := by
-      calc
-        n * (3 * d ^ 2) < n * n := by exact (mul_lt_mul_left hn).mpr h
-        _ = n ^ 2 := by rw [← pow_two]
+      exact lt_of_lt_of_eq (mul_lt_mul_of_pos_left h hn) (pow_two n).symm
     have hdenz : 3 * d ^ 2 ≠ 0 := ne_of_gt hden
     calc
       n = (n * (3 * d ^ 2)) / (3 * d ^ 2) := by field_simp [hdenz]
@@ -157,7 +154,7 @@ theorem residual_param_retention (f : ℝ → ℝ) (c : ℝ)
     边际自由能下降"最大化, 这是参数利用效率的分配维度。 -/
 theorem fractal_param_allocation (n B : ℕ) (Δ : ℕ → ℝ)
     (hB : B ≤ n) (hdec : ∀ {k j : ℕ}, k < j → j < n → Δ j < Δ k) :
-    (∑ k in range B, Δ k) - (B : ℝ) / n * (∑ k in range n, Δ k) ≥ 0 := by
+    (∑ k ∈ range B, Δ k) - (B : ℝ) / n * (∑ k ∈ range n, Δ k) ≥ 0 := by
   exact Fractal.fractal_beats_uniform Δ hB hdec
 
 end Efficiency

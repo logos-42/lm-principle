@@ -46,7 +46,7 @@
   - **幂律稀疏**: 连接密度 (1-d)^(D-1) 是分形维数 D 的直接函数——
     任务维数越高, 深层越稀疏, 与 LMT-twister V34 "规模无效" 发现呼应
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.Linarith
@@ -75,7 +75,7 @@ namespace Fractal
 theorem prefix_allocation_optimal {n B : ℕ} (Δ : ℕ → ℝ)
     (hB : B ≤ n)
     (hdec : ∀ {k j : ℕ}, k < j → j < n → Δ j < Δ k) :
-    (B : ℝ) / n * (∑ k in range n, Δ k) ≤ ∑ k in range B, Δ k := by
+    (B : ℝ) / n * (∑ k ∈ range n, Δ k) ≤ ∑ k ∈ range B, Δ k := by
   by_cases hn0 : n = 0
   · subst n
     simp at hB
@@ -83,8 +83,8 @@ theorem prefix_allocation_optimal {n B : ℕ} (Δ : ℕ → ℝ)
   · have hnpos : 0 < n := Nat.pos_of_ne_zero hn0
     have hnposR : (0 : ℝ) < n := by exact_mod_cast hnpos
     -- 目标 ⟺ B·U ≤ n·P
-    have hsplit : (∑ k in range n, Δ k) =
-        (∑ k in range B, Δ k) + ∑ k in range (n - B), Δ (B + k) := by
+    have hsplit : (∑ k ∈ range n, Δ k) =
+        (∑ k ∈ range B, Δ k) + ∑ k ∈ range (n - B), Δ (B + k) := by
       rw [← Finset.sum_range_add Δ B (n - B)]
       simp [Nat.add_sub_of_le hB]
     have hnonneg : ∀ k ∈ range B, ∀ j ∈ range (n - B), 0 ≤ Δ k - Δ (B + j) := by
@@ -94,48 +94,48 @@ theorem prefix_allocation_optimal {n B : ℕ} (Δ : ℕ → ℝ)
       have hkj : k < B + j := by omega
       have hjn : B + j < n := by omega
       exact le_of_lt (sub_pos.mpr (hdec hkj hjn))
-    have hsum_nonneg : 0 ≤ ∑ k in range B, ∑ j in range (n - B), (Δ k - Δ (B + j)) := by
+    have hsum_nonneg : 0 ≤ ∑ k ∈ range B, ∑ j ∈ range (n - B), (Δ k - Δ (B + j)) := by
       exact Finset.sum_nonneg (fun k hk => Finset.sum_nonneg (fun j hj => hnonneg k hk j hj))
     have hnℝ : (n : ℝ) = (B : ℝ) + (n - B : ℝ) := by
       exact_mod_cast (Nat.add_sub_of_le hB).symm
-    have hdouble : (n - B : ℝ) * (∑ k in range B, Δ k) -
-        (B : ℝ) * (∑ j in range (n - B), Δ (B + j)) =
-        ∑ k in range B, ∑ j in range (n - B), (Δ k - Δ (B + j)) := by
+    have hdouble : (n - B : ℝ) * (∑ k ∈ range B, Δ k) -
+        (B : ℝ) * (∑ j ∈ range (n - B), Δ (B + j)) =
+        ∑ k ∈ range B, ∑ j ∈ range (n - B), (Δ k - Δ (B + j)) := by
       have h := calc
-        (∑ k in range B, ∑ j in range (n - B), (Δ k - Δ (B + j)))
-            = ∑ k in range B, ((n - B : ℝ) * Δ k - ∑ j in range (n - B), Δ (B + j)) := by
+        (∑ k ∈ range B, ∑ j ∈ range (n - B), (Δ k - Δ (B + j)))
+            = ∑ k ∈ range B, ((n - B : ℝ) * Δ k - ∑ j ∈ range (n - B), Δ (B + j)) := by
                 apply Finset.sum_congr rfl
                 intro k hk
                 simp [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_range,
                   nsmul_eq_mul, Nat.cast_sub hB]
-        _ = (n - B : ℝ) * (∑ k in range B, Δ k) -
-            ∑ k in range B, ∑ j in range (n - B), Δ (B + j) := by
+        _ = (n - B : ℝ) * (∑ k ∈ range B, Δ k) -
+            ∑ k ∈ range B, ∑ j ∈ range (n - B), Δ (B + j) := by
                 rw [Finset.sum_sub_distrib]
                 rw [← Finset.mul_sum]
-        _ = (n - B : ℝ) * (∑ k in range B, Δ k) -
-            (B : ℝ) * (∑ j in range (n - B), Δ (B + j)) := by
+        _ = (n - B : ℝ) * (∑ k ∈ range B, Δ k) -
+            (B : ℝ) * (∑ j ∈ range (n - B), Δ (B + j)) := by
                 rw [Finset.sum_comm]
                 simp only [Finset.sum_const, Finset.card_range, nsmul_eq_mul]
                 rw [← Finset.mul_sum]
       exact h.symm
-    have hmain : (B : ℝ) * (∑ k in range n, Δ k) ≤ (n : ℝ) * (∑ k in range B, Δ k) := by
+    have hmain : (B : ℝ) * (∑ k ∈ range n, Δ k) ≤ (n : ℝ) * (∑ k ∈ range B, Δ k) := by
       calc
-        (B : ℝ) * (∑ k in range n, Δ k)
-            = (B : ℝ) * ((∑ k in range B, Δ k) + ∑ k in range (n - B), Δ (B + k)) := by
+        (B : ℝ) * (∑ k ∈ range n, Δ k)
+            = (B : ℝ) * ((∑ k ∈ range B, Δ k) + ∑ k ∈ range (n - B), Δ (B + k)) := by
                 rw [hsplit]
-        _ = (B : ℝ) * (∑ k in range B, Δ k) + (B : ℝ) * (∑ k in range (n - B), Δ (B + k)) := by
+        _ = (B : ℝ) * (∑ k ∈ range B, Δ k) + (B : ℝ) * (∑ k ∈ range (n - B), Δ (B + k)) := by
                 ring
-        _ ≤ (n : ℝ) * (∑ k in range B, Δ k) := by
+        _ ≤ (n : ℝ) * (∑ k ∈ range B, Δ k) := by
                 -- n·P - (B·P + B·T) ≥ 0 ⟺ (n-B)·P - B·T ≥ 0 = 双和 ≥ 0
-                have hrewrite : (n : ℝ) * (∑ k in range B, Δ k) -
-                    (B : ℝ) * (∑ k in range B, Δ k) -
-                    (B : ℝ) * (∑ k in range (n - B), Δ (B + k)) =
-                    (n - B : ℝ) * (∑ k in range B, Δ k) -
-                    (B : ℝ) * (∑ k in range (n - B), Δ (B + k)) := by
+                have hrewrite : (n : ℝ) * (∑ k ∈ range B, Δ k) -
+                    (B : ℝ) * (∑ k ∈ range B, Δ k) -
+                    (B : ℝ) * (∑ k ∈ range (n - B), Δ (B + k)) =
+                    (n - B : ℝ) * (∑ k ∈ range B, Δ k) -
+                    (B : ℝ) * (∑ k ∈ range (n - B), Δ (B + k)) := by
                   rw [hnℝ]
                   ring
-                have hnn : 0 ≤ (n - B : ℝ) * (∑ k in range B, Δ k) -
-                    (B : ℝ) * (∑ k in range (n - B), Δ (B + k)) := by
+                have hnn : 0 ≤ (n - B : ℝ) * (∑ k ∈ range B, Δ k) -
+                    (B : ℝ) * (∑ k ∈ range (n - B), Δ (B + k)) := by
                   rw [hdouble]
                   exact hsum_nonneg
                 nlinarith
@@ -300,7 +300,6 @@ theorem fractal_dimension_scale_invariant (b s : ℝ) (n : ℕ) (hn : n ≠ 0)
     exact ne_of_gt (Real.log_pos h1s)
   have hnz : (n : ℝ) ≠ 0 := by exact_mod_cast hn
   field_simp [hnz, hls]
-  ring
 
 /-- **连接密度幂律单调**: 分形连接密度 δ(d) = (1-d)^(D-1) 随深度 d
     严格递减 (D > 1) —— 分形结构必然"浅层密集、深层稀疏"。 -/
@@ -327,7 +326,7 @@ theorem connection_density_convex_D3 (a b l : ℝ) (hl0 : 0 ≤ l) (hl1 : l ≤ 
     ≥ 均匀堆叠 —— 前缀分配定理 + 残差指数衰减 + 凸组合误差界的组合。 -/
 theorem fractal_beats_uniform {n B : ℕ} (Δ : ℕ → ℝ)
     (hB : B ≤ n) (hdec : ∀ {k j : ℕ}, k < j → j < n → Δ j < Δ k) :
-    (∑ k in range B, Δ k) - (B : ℝ) / n * (∑ k in range n, Δ k) ≥ 0 := by
+    (∑ k ∈ range B, Δ k) - (B : ℝ) / n * (∑ k ∈ range n, Δ k) ≥ 0 := by
   linarith [prefix_allocation_optimal Δ hB hdec]
 
 end Fractal

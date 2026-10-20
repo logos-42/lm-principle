@@ -44,7 +44,7 @@
     P5   (待) 坍缩 vs 表达能力: 距离下界 (1-c)^n 与容量 2^R 的组合
          (LMT.lean 已有容量计数) —— 高维表示不坍缩的充分条件
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Tactic.Linarith
 import Mathlib.Tactic.Ring
 import LmPrinciple.Fractal
@@ -68,7 +68,7 @@ theorem residual_no_collapse (f : ℝ → ℝ) (c : ℝ)
   intro x y
   have htri : |x - y| - |f x - f y| ≤ |(x + f x) - (y + f y)| := by
     -- 反向三角: |x-y| = |((x-y)+(fx-fy)) - (fx-fy)| ≤ |(x-y)+(fx-fy)| + |fx-fy|
-    have h2 := abs_add ((x - y) + (f x - f y)) (-(f x - f y))
+    have h2 := abs_add_le ((x - y) + (f x - f y)) (-(f x - f y))
     have h3 : |x - y| ≤ |(x - y) + (f x - f y)| + |f x - f y| := by
       convert h2 using 1
       · ring

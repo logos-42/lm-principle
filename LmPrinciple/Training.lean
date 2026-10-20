@@ -28,7 +28,7 @@
   [T9] sparse_attention_interactions:  稀疏注意力交互 n·k < n² (参数效率)
   [T10] training_unified:  预训练+后训练+稀疏化 = 同一变分框架的组合
 -/
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
@@ -67,7 +67,7 @@ theorem scaling_law_strict_anti (c α : ℝ) (hc : 0 < c) (hα : 0 < α) :
     simpa using (inv_lt_inv₀ (Real.rpow_pos_of_pos hM α) (Real.rpow_pos_of_pos hN α)).mpr hlt
   have hmul : c * (1 / (M + 1 : ℝ) ^ α) < c * (1 / (N + 1 : ℝ) ^ α) :=
     mul_lt_mul_of_pos_left hrecip hc
-  simpa using hmul
+  simpa [div_eq_mul_inv] using hmul
 
 /-- **T2 预训练损失下界**: 预训练 = 交叉熵最小化 (next-token prediction),
     CE(p,q) ≥ H(p) (数据熵)——**数据质量 (熵) 决定预训练损失下界**:
@@ -170,10 +170,10 @@ theorem dpo_loss_nonneg (x : ℝ) : 0 ≤ -Real.log (1 / (1 + Real.exp (-x))) :=
 theorem sparse_moe_preserves_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
     (hg : ∀ j, 0 ≤ g j) (hsum : (∑ j, g j) = 1)
     (hmax : ∀ j, |E j - y| ≤ M)
-    (S : Finset (Fin n)) (hS : S.Nonempty) (hT : 0 < ∑ j in S, g j) :
-    |(∑ j in S, (g j / ∑ j' in S, g j') * E j) - y| ≤ M := by
+    (S : Finset (Fin n)) (hS : S.Nonempty) (hT : 0 < ∑ j ∈ S, g j) :
+    |(∑ j ∈ S, (g j / ∑ j' ∈ S, g j') * E j) - y| ≤ M := by
   -- 重归一凸组合 (全空间定义, S 外为 0)
-  let g' : Fin n → ℝ := fun j => if j ∈ S then g j / (∑ j' in S, g j') else 0
+  let g' : Fin n → ℝ := fun j => if j ∈ S then g j / (∑ j' ∈ S, g j') else 0
   have hg' : ∀ j, 0 ≤ g' j := by
     intro j
     dsimp [g']
@@ -184,19 +184,19 @@ theorem sparse_moe_preserves_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
   have hsum' : (∑ j : Fin n, g' j) = 1 := by
     -- Σ g' = Σ_{j∈S} g_j/T + Σ_{j∉S} 0 = (1/T)·Σ_{j∈S}g_j = 1
     calc
-      (∑ j : Fin n, g' j) = ∑ j in S, (g j / (∑ j' in S, g j')) := by
+      (∑ j : Fin n, g' j) = ∑ j ∈ S, (g j / (∑ j' ∈ S, g j')) := by
           dsimp [g']
           rw [← Finset.sum_filter]
           congr 1
           ext j
           by_cases hj : j ∈ S <;> simp [hj]
       _ = 1 := by
-          have hTne : (∑ j' in S, g j') ≠ 0 := ne_of_gt hT
+          have hTne : (∑ j' ∈ S, g j') ≠ 0 := ne_of_gt hT
           simp_rw [div_eq_mul_inv]
-          rw [← Finset.sum_mul S (fun j => g j) ((∑ j' in S, g j')⁻¹)]
+          rw [← Finset.sum_mul S (fun j => g j) ((∑ j' ∈ S, g j')⁻¹)]
           exact mul_inv_cancel₀ hTne
   -- 输出形式一致: Σ_{j:Fin n} g' j·E j = Σ_{j∈S} g'j·E j (S 外 0)
-  have hout : (∑ j : Fin n, g' j * E j) = ∑ j in S, (g j / (∑ j' in S, g j')) * E j := by
+  have hout : (∑ j : Fin n, g' j * E j) = ∑ j ∈ S, (g j / (∑ j' ∈ S, g j')) * E j := by
     dsimp [g']
     simp [ite_mul, zero_mul]
   have hb := Fractal.moe_error_bound g' E y M hg' hsum' hmax
@@ -208,8 +208,8 @@ theorem sparse_moe_preserves_bound {n : ℕ} (g E : Fin n → ℝ) (y M : ℝ)
 theorem sparse_attention_preserves_bound {n : ℕ} (w V : Fin n → ℝ) (y M : ℝ)
     (hw : ∀ j, 0 ≤ w j) (hsum : (∑ j, w j) = 1)
     (hmax : ∀ j, |V j - y| ≤ M)
-    (S : Finset (Fin n)) (hS : S.Nonempty) (hT : 0 < ∑ j in S, w j) :
-    |(∑ j in S, (w j / ∑ j' in S, w j') * V j) - y| ≤ M := by
+    (S : Finset (Fin n)) (hS : S.Nonempty) (hT : 0 < ∑ j ∈ S, w j) :
+    |(∑ j ∈ S, (w j / ∑ j' ∈ S, w j') * V j) - y| ≤ M := by
   -- 与稀疏 MoE 同构——直接复用
   exact sparse_moe_preserves_bound w V y M hw hsum hmax S hS hT
 
