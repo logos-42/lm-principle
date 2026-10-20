@@ -18,4 +18,5 @@
 - [experiment-results-e8-e12.md](./experiment-results-e8-e12.md) — 第一轮实验战役结果: E8 子空间(普适性比值1.17)/E9 规模双区间/E10 退火(部分)/E11 残差(强支持)/E12 逆模式(12.5×)
 - [component-derivations.md](./component-derivations.md) — 五组件推导: 双轴率受限公设 I' (注意力=全局路由/残差=临界线参照系/规模=候选扩展+有效秩封顶) + log·非线性·概率 Q&A + FEP 三缺口回答
 - [universal-weight-subspace.md](./universal-weight-subspace.md) — 普适权重子空间假说编译页（arXiv:2512.05117, 认知动力学经验锚点, 候选命题 CD1-CD5）
+- [predictive-gap.md](./predictive-gap.md) — 预测差距诚实账簿: 牛顿标准对照（有界限无数值）、三大缺口、开普勒阶段定位、E13 先验预测分水岭设计
 - [../paper-llm-fractal-criticality.md](../paper-llm-fractal-criticality.md) — **论文稿《LLM动力学下的数学分形临界》**（70 定理 + 本地真实实验）
