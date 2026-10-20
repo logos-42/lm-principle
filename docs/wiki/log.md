@@ -267,10 +267,8 @@ schema_version: 2
 - ✅ **验证**: `lake build` EXIT=0、无 error、扫描无 sorry/admit/axiom、定理计数 83、15 模块均产 olean
 - ✅ **warning 清零 (并行会话跟进)**: `lakefile.toml` 加 `allowNonModules = true` 消除
   module-system 警告；`Mathlib.Data.Complex.Basic`→`Mathlib.Basic.Complex.Basic`（LMT/Smoke）；
-  `haveI`→`have`、未用变量 `_` 前缀、`if_pos`/`if_neg`→`ite_eq_left`/`ite_eq_right`、
-  `ring`→`ring_nf`、`Real.log_inv`/`Finset.card_le_univ` 等局部简化——`lake build` 现零 warning
-  → **已于 2026-10-20 同日后续会话清零**（`allowNonModules = true` + 13 处 unused-variable
-  改名 + info 级提示修复；最终 0 error / 0 warning）
+  `haveI`→`have`、13 处 unused-variable `_` 前缀、`if_pos`/`if_neg`→`ite_eq_left`/`ite_eq_right`、
+  `ring`→`ring_nf`、`Real.log_inv`/`Finset.card_le_univ` 等局部简化——最终 0 error / 0 warning
 - 同步更新 current-status.md（工具链/依赖版本、迁移小结、∑ in 移除、macOS 环境说明）与本文档
 - 待提交推送
 
