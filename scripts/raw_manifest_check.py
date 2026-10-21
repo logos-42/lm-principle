@@ -31,7 +31,8 @@ LEGACY_DEFAULT = {
         "compiled_into",
         "notes",
     ],
-    "allowed_status": ["new", "compiled", "archived"],
+    # "generated" = 本仓库脚本产出的派生文件 (图/论文稿), 语义上等同 compiled
+    "allowed_status": ["new", "compiled", "generated", "archived"],
 }
 
 
@@ -100,7 +101,7 @@ def main() -> int:
                 if not candidate.exists():
                     errors.append(f"row {idx}: missing local raw file {candidate}")
 
-            if status == "compiled" and not compiled_into:
+            if status in ("compiled", "generated") and not compiled_into:
                 errors.append(f"row {idx}: status {status} requires compiled_into")
 
     if errors:

@@ -13,3 +13,4 @@ paper-fig-depth,lm_principle,,pdf,fig_depth.pdf,paper/fig_depth.pdf,generated,do
 paper-fig-depth-png,lm_principle,,png,fig_depth.png,paper/fig_depth.png,generated,docs/paper-llm-fractal-criticality.md,"同上 PNG 版"
 paper-fig-fractal-params,lm_principle,,pdf,fig_fractal_params.pdf,paper/fig_fractal_params.pdf,generated,docs/paper-llm-fractal-criticality.md,"分形 vs 均匀 -25% 参数损失几乎相等"
 paper-fig-fractal-params-png,lm_principle,,png,fig_fractal_params.png,paper/fig_fractal_params.png,generated,docs/paper-llm-fractal-criticality.md,"同上 PNG 版"
+e13-results,lm_principle,,txt,experiments_e13_results.txt,scripts/experiments_e13_results.txt,generated,docs/wiki/experiment-results-e13.md,"E13 先验预测完整日志 (远程 2xA100, 36 次训练; MAE 0.472 vs 噪声 0.019)"

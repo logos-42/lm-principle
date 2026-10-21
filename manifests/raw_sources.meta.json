@@ -11,5 +11,11 @@
     "compiled_into",
     "notes"
   ],
-  "allowed_status": ["new", "referenced", "compiled", "archived"]
+  "allowed_status": [
+    "new",
+    "referenced",
+    "compiled",
+    "generated",
+    "archived"
+  ]
 }
