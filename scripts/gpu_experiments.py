@@ -9,7 +9,7 @@
 
 输出: experiments/results/gpu_{exp}.json + 打印到 stdout (tee 到 txt 由调用方做)
 """
-import os, re, glob, json, time, argparse, subprocess
+import os, re, glob, json, time, argparse, subprocess, math
 import numpy as np
 import torch, torch.nn as nn, torch.optim as optim
 
@@ -614,7 +614,7 @@ def run_e13():
         print(f"  xz 不可用: {e}")
     hfloor_nats = hfloor_bits * np.log(2)
     print(f"  语料 {len(raw)} 字符; xz 压缩 {len(comp)} 字节; H_floor ≈ {hfloor_bits:.3f} bits/char = {hfloor_nats:.3f} nats/char")
-    # ② 数据谱尾指数 β: 字符转移共现矩阵 SVD
+    # ② 数据谱: 转移共现矩阵 SVD -> 特征值谱 λ 与谱尾指数 β_data
     M = np.zeros((vocab, vocab))
     for i in range(len(data) - 1):
         M[data[i], data[i + 1]] += 1
@@ -625,43 +625,96 @@ def run_e13():
     b_data, _ = np.polyfit(np.log(idx[good]), np.log(lam[lo:hi + 1][good]), 1)
     beta_data = float(-b_data)
     print(f"  转移矩阵谱尾指数 β_data = {beta_data:.3f} (λ_i ∝ i^(-β))")
-    # ③ 读 E9 网格: 取最小实测 loss 与其配置 (数据受限区下最大模型非地板, 幂律-over-N 无定义)
+    # 单字交叉熵与可约失真预算 D0 (= 谱应承载的总失真)
+    cnt = np.bincount(data, minlength=vocab).astype(np.float64) + 1e-9
+    p = cnt / cnt.sum()
+    ce_uni = float(-np.mean(np.log(p[data])))
+    D0 = ce_uni - hfloor_nats
+    print(f"  单字 CE={ce_uni:.3f} nats; 可约失真预算 D0={D0:.3f} nats")
+    lam_pos = lam[lam > 0]
+    lam_n = lam_pos / lam_pos.sum() * D0
+    # ③ 读 E9 网格 (实测真值, 同族模型已训) —— 先验预测对照对象
     e9 = json.load(open(os.path.join(RESULTS, "gpu_e9.json")))
     grid = e9["grid"]; params = e9["params"]
     dims = sorted({int(k.split("_")[0][3:]) for k in grid})
     Ts = sorted({int(k.split("_")[1][1:]) for k in grid})
-    min_key = min(grid, key=grid.get)
-    min_loss = grid[min_key]
-    d_min = int(min_key.split("_")[0][3:]); T_min = int(min_key.split("_")[1][1:])
-    fit_slopes = []
+
+    # 率失真 (逆向注水) 工具 —— 用数据谱 λ_n 与可达率 R 预测失真
+    def interaction_rate(N, seq, dim):
+        return float(math.log(max(N * (seq ** 2) / (3.0 * dim ** 2), 1.0)))
+
+    def waterfill_D(lam, R):
+        lam = np.asarray(lam, float); tot = float(lam.sum())
+        if R <= 0:
+            return tot
+        lo, hi = 1e-12 * max(tot, 1e-12), float(lam.max()) + 1e-12
+        for _ in range(200):
+            th = math.sqrt(lo * hi)
+            r = float(np.sum(0.5 * np.log(lam[lam > th] / th)))
+            lo, hi = (th, hi) if r > R else (lo, th)
+        th = math.sqrt(lo * hi)
+        return float(np.sum(np.minimum(lam, th)))
+
+    def R_of_D(lam, D, iters=80):
+        lam = np.asarray(lam, float); tot = float(lam.sum())
+        if D >= tot:
+            return 0.0
+        if D <= 0:
+            return float("inf")
+        th_lim = max(float(lam.max()), 1e-300) * 1e-12
+        hi = float(np.sum(0.5 * np.maximum(0.0, np.log(np.maximum(lam, th_lim) / th_lim)))) + 10.0
+        lo = 0.0
+        for _ in range(iters):
+            mid = 0.5 * (lo + hi)
+            if waterfill_D(lam, mid) > D:
+                lo = mid
+            else:
+                hi = mid
+        return 0.5 * (lo + hi)
+
+    # ④ 先验预测: 公式率 R_cap(N) 注水 -> 对照实测; 反演 R_needed 看容量/数据受限
+    pred_rows, R_cap_list, R_need_list, lnN_list, lnT_list = [], [], [], [], []
     for T in Ts:
-        vals = np.array([grid[f"dim{d}_T{T}"] for d in dims])
-        floor = vals[-1]
-        excess = vals[:-1] - floor
-        ok = excess > 1e-4
-        if ok.sum() >= 2:
-            Ns = np.array([params[f"dim{d}"] for d in dims[:-1]], float)
-            sl, _ = np.polyfit(np.log(Ns[ok]), np.log(excess[ok]), 1)
-            fit_slopes.append((T, float(sl)))
-            print(f"  E9 T={T/1e3:.0f}K: 实测超额幂律斜率 β_fit = {-sl:.3f}")
-    mean_fit = float(np.mean([s for _, s in fit_slopes])) if fit_slopes else float("nan")
-    # ④ 缺口: 实测最小 loss 与熵地板之差 = 容量不足+优化缺口+估计误差 (三混合, 目前不可单独算)
+        for d in dims:
+            key = f"dim{d}_T{T}"
+            Lm = float(grid[key]); N = params[f"dim{d}"]
+            excess_meas = Lm - hfloor_nats
+            Rc = interaction_rate(N, 128, d)
+            Lp = hfloor_nats + waterfill_D(lam_n, Rc)
+            Rneed = R_of_D(lam_n, excess_meas) if excess_meas > 0 else 0.0
+            pred_rows.append({"cell": key, "N": N, "T": T, "L_pred": float(Lp),
+                              "L_meas": Lm, "err": float(Lp - Lm), "abs": abs(Lp - Lm),
+                              "R_cap": float(Rc), "R_needed": float(Rneed)})
+            R_cap_list.append(Rc); R_need_list.append(Rneed)
+            lnN_list.append(math.log(N)); lnT_list.append(math.log(T))
+    mae = float(np.mean([r["abs"] for r in pred_rows]))
+    bias = float(np.mean([r["err"] for r in pred_rows]))
+    gN = float(np.polyfit(lnN_list, R_need_list, 1)[0]) if len(lnN_list) >= 2 else float("nan")
+    gT = float(np.polyfit(lnT_list, R_need_list, 1)[0]) if len(lnT_list) >= 2 else float("nan")
+    cap_vs_need = float(np.corrcoef(R_cap_list, R_need_list)[0, 1]) if len(R_cap_list) >= 2 else float("nan")
+    print(f"  先验预测(公式 R_cap 注水): MAE={mae:.3f} bias={bias:+.3f} nats")
+    print(f"    R_cap(公式) 与 R_needed(实测反演) 相关系数={cap_vs_need:+.2f} (≈1=公式率尺度对)")
+    print(f"    R_needed ∝ lnN 斜率={gN:+.3f}, ∝ lnT 斜率={gT:+.3f} "
+          f"(正=该轴受限)")
+    # ⑤ 缺口: 实测最小 loss 与熵地板之差
+    min_key = min(grid, key=grid.get); min_loss = grid[min_key]
+    d_min = int(min_key.split("_")[0][3:]); T_min = int(min_key.split("_")[1][1:])
     gap = min_loss - hfloor_nats
     print(f"  E9 最小实测 loss = {min_loss:.3f} nats (dim{d_min}, T={T_min/1e3:.0f}K)")
     print(f"  熵地板 H_floor = {hfloor_nats:.3f} nats; 不可约缺口 = {gap:.3f} nats "
           f"(= 容量不足+优化缺口+估计误差, 理论未拆分)")
-    # ⑤ 判定
-    if np.isnan(mean_fit):
-        verdict = (f"E13 分水岭部分成立: 熵地板已先验测出 ({hfloor_nats:.2f} nats), "
-                   f"E9 最小实测 {min_loss:.2f} nats, 差 {gap:.2f} nats 即预测差距; "
-                   f"β 形状预测因数据受限区(最大模型非地板)暂不可定义")
-    elif abs(beta_data - mean_fit) < 0.6:
-        verdict = f"支持 E13: β_data={beta_data:.2f} ≈ β_fit={mean_fit:.2f} (先验预测成立)"
+    # ⑥ 判定: 谱能否先验预测损失地形?
+    if cap_vs_need < 0.7 or mae > 1.0:
+        verdict = (f"先验预测不成立(MAE={mae:.2f}, 公式率尺度错: R_cap↔R_needed 相关={cap_vs_need:+.2f}) "
+                   f"—— 可达率 R(N,T) 不被数据谱决定(缺口#2 未闭合); 谱只先验给出 "
+                   f"H_floor={hfloor_nats:.2f} 与 D0={D0:.2f}, 缺口已量化={gap:.2f} nats")
     else:
-        verdict = f"未对齐: β_data={beta_data:.2f} vs β_fit={mean_fit:.2f} (记录差异)"
+        verdict = f"先验预测成立(MAE={mae:.2f}, 公式率尺度正确)"
     print(f"  [E13] 判定: {verdict}")
     R = {"hfloor_nats": hfloor_nats, "hfloor_bits": hfloor_bits, "beta_data": beta_data,
-         "beta_fit_per_T": fit_slopes, "beta_fit_mean": mean_fit,
+         "ce_unigram": ce_uni, "D0": D0,
+         "prior_pred": {"mae": mae, "bias": bias, "cap_vs_need_corr": cap_vs_need,
+                        "R_needed_slope_lnN": gN, "R_needed_slope_lnT": gT, "rows": pred_rows},
          "e9_min_loss": min_loss, "e9_min_config": {"dim": d_min, "T": T_min},
          "prediction_gap_nats": gap, "verdict": verdict}
     with open(os.path.join(RESULTS, "gpu_e13.json"), "w") as f:
