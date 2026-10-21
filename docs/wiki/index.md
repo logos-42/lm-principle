@@ -15,7 +15,8 @@
 - [selection-principle-derivation.md](./selection-principle-derivation.md) — 选择原理导出尝试（三路线失败分析/定义性转向/公设 2→1/L6 softmax 发现）
 - [L6-selection-operator.md](./L6-selection-operator.md) — L6 选择算子定律（softmax 第一性推导, Gibbs 变分原理 Lean 半程验证）
 - [dynamics-source-structure.md](./dynamics-source-structure.md) — 结构作为动力学来源: 规模法则(含截止)/反向传播/残差/共同基子空间四组件解释 + 定律表 L7/L8 + 实验纲领
-- [experiment-results-e8-e12.md](./experiment-results-e8-e12.md) — 第一轮实验战役结果: E8 子空间(普适性比值1.17)/E9 规模双区间/E10 退火(部分)/E11 残差(强支持)/E12 逆模式(12.5×)
+- [experiment-results-e8-e12.md](./experiment-results-e8-e12.md) — 第一轮实验战役结果(CPU): E8 子空间(普适性比值1.17)/E9 规模双区间/E10 退火(部分)/E11 残差(强支持)/E12 逆模式(12.5×)
+- [experiment-results-gpu.md](./experiment-results-gpu.md) — GPU 放大批次(A100, vllm-cu128): E9 双区间+crossover/E11 残差坍缩(深度4)/E12 逆模式2.8×/E8 普适性1.27+8C+0.461/E13 熵地板0.927+缺口1.556
 - [component-derivations.md](./component-derivations.md) — 五组件推导: 双轴率受限公设 I' (注意力=全局路由/残差=临界线参照系/规模=候选扩展+有效秩封顶) + log·非线性·概率 Q&A + FEP 三缺口回答
 - [universal-weight-subspace.md](./universal-weight-subspace.md) — 普适权重子空间假说编译页（arXiv:2512.05117, 认知动力学经验锚点, 候选命题 CD1-CD5）
 - [experiment-results-e13.md](./experiment-results-e13.md) — E13 先验预测执行结果（GPU/2×A100）: 预测先落盘后对照, MAE 0.472 vs 噪声 0.019（未通过）; 缺口 #2 是二变量 R(N,T), 优化缺口 ≈0
