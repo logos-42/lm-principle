@@ -23,5 +23,6 @@
 - [experiment-results-e13.md](./experiment-results-e13.md) — E13 先验预测执行结果（GPU/2×A100）: 预测先落盘后对照, MAE 0.472 vs 噪声 0.019（未通过）; 缺口 #2 是二变量 R(N,T), 优化缺口 ≈0
 - [predictive-gap.md](./predictive-gap.md) — 预测差距诚实账簿: 牛顿标准对照（有界限无数值）、三大缺口、开普勒阶段定位、E13 先验预测分水岭设计
 - [gap2-rnt-derivation.md](./gap2-rnt-derivation.md) — 缺口 #2 推导目标书: 架构→可达率 R(N,T)（E13 反演约束 + min(R_cap,R_data)·η 候选结构 + 三个缺失引理 L-data/L-eta/L-switch + Lean 钩子）
+- L9 泛化定律: `LmPrinciple/Generalization.lean` — 泛化=流形连通性驱动的信息流动效率（gen_error=数据估计项×连通性惩罚；连通性↑/数据↑/全局路由 都压低泛化误差）；η 探针双区间实证
 - [framework-positioning.md](./framework-positioning.md) — 框架定位: 与其他八家动力学思想的绝对差别（解释方向/前提数目/闭环内生）、为何只解释一部分（必要条件理论）、数学为何成立四层回答
 - [../paper-llm-fractal-criticality.md](../paper-llm-fractal-criticality.md) — **论文稿《LLM动力学下的数学分形临界》**（70 定理 + 本地真实实验）

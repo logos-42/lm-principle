@@ -762,9 +762,87 @@ def cfg_for(name, args):
     return c
 
 
+# E-ETA: 折叠深度 η 探针 (分解 优化折叠 vs 泛化)
+# ============================================================
+def run_eta(cfg):
+    print(f"[ETA] 折叠深度探针 dims={cfg['dims']} Ts={cfg['Ts']} seeds={cfg['seeds']} device={DEVICE}")
+    text = load_corpus(cfg.get("max_chars"))
+    _, stoi, vocab = build_vocab(text)
+    data = np.array([stoi[c] for c in text], dtype=np.int64)
+    import subprocess
+    raw = (" ".join(text)).encode("utf-8")
+    try:
+        comp = subprocess.run(["xz", "--stdout", "-9"], input=raw, capture_output=True).stdout
+        hfloor_nats = (8.0 * len(comp) / len(raw)) * np.log(2)
+    except Exception:
+        hfloor_nats = float("nan")
+    cnt = np.bincount(data, minlength=vocab).astype(np.float64) + 1e-9
+    p = cnt / cnt.sum()
+    ce_uni = float(-np.mean(np.log(p[data])))
+    D0 = ce_uni - hfloor_nats  # 可约失真预算 (谱应承载的总可压缩量)
+    print(f"  H_floor={hfloor_nats:.3f} nats; 单字CE={ce_uni:.3f}; D0(可约预算)={D0:.3f} nats")
+    seq = cfg["seq"]
+
+    def eval_windows(m, X, lo, hi, k=6):
+        top = min(hi - seq, len(X) - seq - 1)  # 保证 s+seq+1 ≤ len(X), yb 不退化成 seq-1
+        top = max(top, lo)
+        n = max(1, min(k, top - lo + 1))
+        starts = np.linspace(lo, top, n).astype(int)
+        vals = []
+        for s in starts:
+            xb = X[s:s + seq].unsqueeze(0)
+            yb = X[s + 1:s + 1 + seq].unsqueeze(0)
+            vals.append(eval_loss(m, xb, yb, vocab))
+        return float(np.mean(vals))
+
+    rows = []
+    for dim in cfg["dims"]:
+        for T in cfg["Ts"]:
+            T = min(T, len(data) - 1000)
+            d = data[:T]
+            split = int(T * 0.9)
+            for seed in cfg["seeds"]:
+                torch.manual_seed(seed)
+                m = CharLM(vocab, dim=dim).to(DEVICE)
+                make, X = make_batch(d, split, seq=seq, bs=cfg["bs"])
+                m = train_model(m, make, vocab, cfg["steps"], lr=cfg.get("lr", 3e-3))
+                train_loss = eval_windows(m, X, 0, split)   # 折叠深度 (优化)
+                test_loss = eval_windows(m, X, split, T)     # 总损失 (含泛化)
+                N = n_params(m)
+                eta = 1.0 - (train_loss - hfloor_nats) / D0 if D0 > 0 else float("nan")
+                fold_resid = train_loss - hfloor_nats         # 折叠后剩余超额 (优化项)
+                gen_gap = test_loss - train_loss              # 泛化/估计缺口
+                rows.append({"dim": dim, "T": T, "seed": seed, "N": N,
+                             "train": float(train_loss), "test": float(test_loss),
+                             "eta": float(eta), "fold_resid": float(fold_resid),
+                             "gen_gap": float(gen_gap)})
+                print(f"  dim={dim} T={T/1e3:.0f}K s{seed}: train={train_loss:.3f} "
+                      f"test={test_loss:.3f} η={eta:.3f} fold_resid={fold_resid:.3f} "
+                      f"gen_gap={gen_gap:.3f}", flush=True)
+    mean_eta = float(np.nanmean([r["eta"] for r in rows]))
+    mean_fold = float(np.nanmean([r["fold_resid"] for r in rows]))
+    mean_gen = float(np.nanmean([r["gen_gap"] for r in rows]))
+    print(f"  [ETA] 平均 η={mean_eta:.3f}; 折叠残余(优化项)={mean_fold:.3f}; 泛化缺口={mean_gen:.3f}")
+    print(f"  [ETA] 缺口分解: 优化残余 + 泛化 = {mean_fold:.3f} + {mean_gen:.3f}")
+    if mean_eta > 0.8 and mean_gen > mean_fold:
+        verdict = "η≈1 且 泛化>优化残余 ⟹ 绑定项是泛化/估计 (优化非瓶颈, 折叠到底)"
+    elif mean_eta < 0.5:
+        verdict = "η 显著<1 ⟹ 优化也是绑定项 (折叠没折到底)"
+    else:
+        verdict = "混合: 优化与泛化都贡献缺口"
+    print(f"  [ETA] 判定: {verdict}")
+    R = {"H_floor": hfloor_nats, "D0": D0, "mean_eta": mean_eta,
+         "mean_fold_resid": mean_fold, "mean_gen_gap": mean_gen,
+         "verdict": verdict, "rows": rows}
+    with open(os.path.join(RESULTS, "gpu_eta.json"), "w") as f:
+        json.dump(R, f, indent=2)
+    print("[ETA] -> experiments/results/gpu_eta.json")
+    return R
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("exp", choices=["e9", "e11", "e12", "e8", "e13", "freeze", "all"])
+    ap.add_argument("exp", choices=["e9", "e11", "e12", "e8", "e13", "eta", "freeze", "all"])
     ap.add_argument("--max_chars", type=int, default=None)
     ap.add_argument("--dims", type=str, default=None)
     ap.add_argument("--Ts", type=str, default=None)
@@ -801,6 +879,8 @@ def main():
         run_e8(cfg_for("e8", args))
     if args.exp == "e13" or args.exp == "all":
         run_e13()
+    if args.exp == "eta":
+        run_eta(cfg_for("e9", args))
 
 
 if __name__ == "__main__":
