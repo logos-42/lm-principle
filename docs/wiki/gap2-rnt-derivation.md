@@ -97,6 +97,29 @@ R_ach(N, T, {λ_i}) = min( R_cap(N), R_data(T) ) · η(N, T)
    幂律-over-N 斜率可定义 (当前卡数据受限区故不可测)。
 3. **E13-b/c 联动**: 用 G2 先验预测第二语料族, 留出检验 (幂律形式可迁移、系数需 per-corpus)。
 
+### 一键可发实验 (E13-crossover, 就绪待 GPU 隧道恢复)
+
+**目标**: 把 E9 网格推到参数受限区, 定位 crossover `N*(T)`, 看 `∂R_needed/∂lnN` 由负转正
+（数据门控→容量门控的切换）, 并让幂律-over-N 的 β-fit 变得可测（验证 G2 的 L-switch）。
+
+**前提**: 需更大语料（现有 docs/wiki ~830K 字符, 要覆盖 T≥1M 需 >2M 字符；可并入
+`CORPUS_PATTERNS` 更多源或 `--max-chars` 放大）。
+
+**命令**（远程 2×A100, `scripts/gpu_experiments.py`）:
+```bash
+# 1) 训更大网格进参数受限区（dims 上探 512, T 上探 2M+）
+CUDA_VISIBLE_DEVICES=0 python scripts/gpu_experiments.py e9 \
+    --dims 128 256 512 --Ts 100000 300000 1000000 3000000 --seeds 42 43 44
+# 2) 反演: R_needed(N,T) 的 ∂/∂lnN、∂/∂lnT; 定位 crossover (∂/∂lnN 变号处)
+python scripts/gpu_experiments.py e13
+```
+**判定**: ① 大 T 下 `∂R_needed/∂lnN` 转正 = L-data/L-cap 切换 (G2 的 `min` 成立);
+② crossover `N*(T)` 位置与 `R_cap(N)=R_data(T)` 解一致; ③ 参数受限区 β-fit 可定义且
+与谱尾 β_data 同量级。
+
+**当前阻塞 (2026-10-22)**: A100 隧道 (100.100.30.185:6100) SSH banner 失效 (端口开但无
+SSH 服务), 上个 session 的转发通道过期; 需用户重连隧道后才能执行。
+
 ## 7. 诚实边界
 
 - G2 是**推导目标**, 不是已证定理; §3 的 `min(...)·η` 结构是**假设形态**,
