@@ -360,7 +360,7 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   `full_fold_reaches_floor`（η=1 折到底⟹损失=地板, 对应实测记忆化）+ `capped_fold_above_floor`（封顶⟹下不去）;
   HB1 桥接 `forced_zero_trapped`/`residual_removes_forced_zero`（标量 η↔拓扑零点是建模桥）。验证留后（折叠深度实测标定）。
   ✅ **G2 第一梯队形式化完成（2026-10-22）**: `WaterFilling.lean` 注水失真 D(R)（`distortion_antitone_rate` 率越多失真越低, **证明**了 OptEff 的 Antitone D 假设）+ `G2.lean` 组装 `R_ach=min(R_cap,R_data)·η` 与 `L=H_floor+D(R_ach)` 的单调性（数据↑/折叠↑ 都压低损失）。6 个新 Lean 文件全编译通过、无 sorry。**下一步**: 跑 η 探针验证（折叠深度实测），再攻第二梯队（L-switch crossover / 谱尾→规模律 / 泛化项）。
-  ✅ **L9 泛化定律形式化 + η 探针双区间（2026-10-22）**: `Generalization.lean`——泛化=流形连通性驱动的信息流动效率（gen_error=数据估计项×连通性惩罚；连通性↑/数据↑/全局路由都压低泛化误差, 注意力全局>CNN 局部）。η 探针（GPU1, 同记 train+test）出**双区间铁证**: dim128 小模型 η=0.53~0.97 折到地板（泛化绑定, gen_gap 0.65~3.2）; dim256/512 大模型+少数据 η≈0（train 卡在单字 CE, 折不动, 折叠/优化绑定）——Folding 的 full_fold_reaches_floor 与 capped_fold_above_floor 都出现, 瓶颈随区间切换（镜像 G2 min 结构）。
+  ✅ **L9 泛化定律形式化 + η 探针（2026-10-22, 解读已修正）**: `Generalization.lean`——泛化=流形连通性驱动的信息流动效率（gen_error=数据估计项×连通性惩罚；连通性↑/数据↑/全局路由 都压低泛化误差, 注意力全局>CNN 局部）。η 探针（GPU1, 同记 train+test）: **dim128 小模型（训练充分）η=0.53~0.97 折到地板（泛化绑定 gen_gap 0.65~3.2）——折叠可达, Folding.full_fold_reaches_floor 印证**; dim256/512 大模型 η≈0（train 卡在单字 CE）——**经复核是"欠训"（1500 步/固定 lr 对 2000 万参数远不够, 非数据不够）, 不能解读为"大模型折叠不了"**; 需训到收敛再测（加步数+调 lr/预热）。
 - ✅ **拓扑构造实验完成（2026-10-22, 本地 CPU 秒级, `scripts/topo_experiments.py`）**
   (`docs/wiki/topology-hairyball-notes.md`): 用户新方向——"智能=结构/动力学而非数学描述",
   落到毛球定理与兰顿蚂蚁。①**E-TOPO-1 兰顿蚂蚁**：11000 步无损失/无优化器，~10k 步后突现
