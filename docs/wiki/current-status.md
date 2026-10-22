@@ -353,8 +353,12 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   `R_needed∝lnT +0.527 / ∝lnN −0.431`——与 Lean 方向**一致**（数据门控）; MAE 3.38 仍失败
   （缺口#2 整体未闭合）。**语料天花板 ~849K**: crossover/参数受限实验需 >2M 语料, 暂被数据卡死。
   ✅ **B 冻结语料复核 + C 的 L-eta 方向内核（2026-10-22）**: B 加 `freeze` 冻结语料重跑,
-  **查明此前"语料快照不同步"是误读**（run_e13 的"848730"是 `" ".join` 空格连接字节≈2×; e9/e13 一直是同一 ~354K 语料, 冻结后输出不变）; lnT 幅度差异是**网格 T 范围**不同（旧+0.83/新+0.53）非语料。C 的 L-eta: `LmPrinciple/OptEff.lean` Lean 证 `loss_mono_in_eta`
+  **查明此前"语料快照不同步"是误读**（run_e13 的"848730"是 `" ".join` 空格连接字节≈2×; e9/e13 一直是同一 ~354K 语料, 冻结后输出不变）; lnT 幅度差异是**网格 T 范围**不同（旧+0.83/新+0.53）非语料。  C 的 L-eta: `LmPrinciple/OptEff.lean` Lean 证 `loss_mono_in_eta`
   （损失随优化效率 η 单调不增, 无 sorry）; η 的具体值/上界（优化缺口③）仍开放。
+  ✅ **η 的"毛球折叠"几何重构已形式化（2026-10-22, 接用户直觉）** `LmPrinciple/Folding.lean`:
+  η=折叠深度（表示流形往低失真/吸引子折叠的程度）; `loss_after_fold_mono`（折越深损失越低）+
+  `full_fold_reaches_floor`（η=1 折到底⟹损失=地板, 对应实测记忆化）+ `capped_fold_above_floor`（封顶⟹下不去）;
+  HB1 桥接 `forced_zero_trapped`/`residual_removes_forced_zero`（标量 η↔拓扑零点是建模桥）。验证留后（折叠深度实测标定）。
 - ✅ **拓扑构造实验完成（2026-10-22, 本地 CPU 秒级, `scripts/topo_experiments.py`）**
   (`docs/wiki/topology-hairyball-notes.md`): 用户新方向——"智能=结构/动力学而非数学描述",
   落到毛球定理与兰顿蚂蚁。①**E-TOPO-1 兰顿蚂蚁**：11000 步无损失/无优化器，~10k 步后突现

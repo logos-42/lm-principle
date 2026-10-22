@@ -84,6 +84,12 @@ R_ach(N, T, {λ_i}) = min( R_cap(N), R_data(T) ) · η(N, T)
   `eff_rate_mono` (`η·R₀` 随 η 不减) + `loss_mono_in_rate` (与 data_rate_mono 合成 G2 单调底座),
   `#print axioms` 仅 `[propext, Classical.choice, Quot.sound]` 无 sorry。**剩**: η 的**具体值/上界**
   （= 优化缺口③, 需收敛率/Lyapunov/临界性理论）——真正困难处, 记为开放。
+  ✅ **η 的几何重构已形式化 (2026-10-22, 用户"毛球向内折叠"直觉)** `LmPrinciple/Folding.lean`:
+  把 η 从抽象标量重构为**折叠深度**（表示流形往低失真/吸引子折叠的程度）——`residual_excess E0 η=E₀(1−η)`
+  （还没折掉的可约超额）、`loss_after_fold H E0 η=H+E₀(1−η)`、`loss_after_fold_mono`（折越深损失越低）、
+  `full_fold_reaches_floor`（η=1 折到底⟹损失=地板, 对应实测记忆化）、`capped_fold_above_floor`（封顶 η_max<1⟹下不去地板）。
+  **HB1 桥**: "纯切向折叠必在强制零点卡住⟹封顶"接 `HairyBall.forced_zero_trapped`, "残差解封⟹可达 η=1" 接
+  `HairyBall.residual_removes_forced_zero`; 标量 η↔拓扑零点是**建模桥**(诚实标注, 非拓扑等价)。**剩（验证留后）**: 折叠深度 η 的实测标定 + 与 UWS 吸引子形状的对应。
 - **L-switch (crossover)**: `R_cap(N) = R_data(T)` 解出 `N*(T)` = Chinchilla 式最优配比。
   E9 已见 crossover 起点 (T=300K dim512 首超 dim256), `N*(T)` 应预测它的位置。
 
