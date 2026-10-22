@@ -66,6 +66,10 @@ R_ach(N, T, {λ_i}) = min( R_cap(N), R_data(T) ) · η(N, T)
 - **L-data (数据率)**: `R_data(T) = c(λ) · ln T`? 常数 `c(λ)` 与谱 λ 的"有效可学
   模式数"挂钩 (∝ 有效秩 / ∫谱)。需从 UWS 的 `T^{-1/2}` 估计误差反推出率单位下的
   `ln T` 增长。**这是 E13 反演 (+0.83) 要解释的核心**。
+  ✅ **方向内核已 Lean 证 (2026-10-22)** `LmPrinciple/DataRate.lean`: `data_rate_mono`
+  (以 UWS `ε(T)=c/√T` 地板为假设, `R_data(T)=Σ max(λ_i−εT)0` 随 T 单调不减) +
+  `usable_modes_mono` (可用谱模数随 T 不减), `#print axioms` 仅 `[propext, Classical.choice,
+  Quot.sound]` 无 sorry。**剩**: 具体幂指数 (~0.83) 与常数 `c(λ)` 的经验/半经验标定。
 - **L-eta (优化效率)**: `η(N,T)` 多接近 1? E13 旧版测到 dim192/T160K 训练损失已低于
   xz 地板 (记忆化) ⟹ 优化非绑定项 (η 在某些 regime 可视为 1, 但参数受限区的 η 未测)。
   这是缺口③, 项目自认"零理论", 是 G2 最不确定的一环。
