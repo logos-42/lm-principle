@@ -348,6 +348,10 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   诚实边界: 单语料族/3seeds/弱训练验证性实验; E9 卡数据受限区故 β-fit 不可定义;
   E8-8B 是真边界; E13 地板与 E9 来自不同语料快照(近似对照); E13 先验预测作为点预测不成立,
   但把缺口 #2 从假设提升为实测确认的边界。
+  ✅ **L-data 攻下 + E13-cross 确认数据门控方向（2026-10-22）**: `LmPrinciple/DataRate.lean`
+  Lean 证 `data_rate_mono`（数据率随 T 单调不减, 无 sorry）; GPU 细 T 网格反演
+  `R_needed∝lnT +0.527 / ∝lnN −0.431`——与 Lean 方向**一致**（数据门控）; MAE 3.38 仍失败
+  （缺口#2 整体未闭合）。**语料天花板 ~849K**: crossover/参数受限实验需 >2M 语料, 暂被数据卡死。
 - ✅ **拓扑构造实验完成（2026-10-22, 本地 CPU 秒级, `scripts/topo_experiments.py`）**
   (`docs/wiki/topology-hairyball-notes.md`): 用户新方向——"智能=结构/动力学而非数学描述",
   落到毛球定理与兰顿蚂蚁。①**E-TOPO-1 兰顿蚂蚁**：11000 步无损失/无优化器，~10k 步后突现
