@@ -183,6 +183,27 @@ def train_model(model, make, vocab, steps, lr=3e-3, device=DEVICE):
     return model
 
 
+def train_converged(model, make, vocab, steps, lr=1e-3, warmup=500, device=DEVICE):
+    """收敛训练: 线性 warmup + cosine 衰减到 0 (大模型需更多步+调度才收敛, 避免固定 lr 欠训)。"""
+    model.to(device)
+    opt = optim.Adam(model.parameters(), lr=lr)
+    crit = nn.CrossEntropyLoss()
+    for t in range(steps):
+        if t < warmup:
+            cur = lr * (t + 1) / max(1, warmup)
+        else:
+            prog = (t - warmup) / max(1, steps - warmup)
+            cur = lr * 0.5 * (1.0 + math.cos(math.pi * min(1.0, prog)))
+        for g in opt.param_groups:
+            g["lr"] = cur
+        xb, yb = make()
+        opt.zero_grad()
+        loss = crit(model(xb).reshape(-1, vocab), yb.reshape(-1))
+        loss.backward()
+        opt.step()
+    return model
+
+
 def eval_loss(model, xb, yb, vocab):
     with torch.no_grad():
         return nn.functional.cross_entropy(model(xb).reshape(-1, vocab), yb.reshape(-1)).item()
@@ -805,7 +826,8 @@ def run_eta(cfg):
                 torch.manual_seed(seed)
                 m = CharLM(vocab, dim=dim).to(DEVICE)
                 make, X = make_batch(d, split, seq=seq, bs=cfg["bs"])
-                m = train_model(m, make, vocab, cfg["steps"], lr=cfg.get("lr", 3e-3))
+                m = train_converged(m, make, vocab, cfg["steps"],
+                                    lr=cfg.get("lr", 1e-3), warmup=max(200, cfg["steps"] // 12))
                 train_loss = eval_windows(m, X, 0, split)   # 折叠深度 (优化)
                 test_loss = eval_windows(m, X, split, T)     # 总损失 (含泛化)
                 N = n_params(m)
