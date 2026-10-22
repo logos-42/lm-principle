@@ -1,0 +1,109 @@
+---
+title: 缺口 #2 推导目标书——架构→可达率 R(N,T)
+source: session
+created: 2026-10-22
+last_confirmed: 2026-10-22
+audience: internal
+stage: current
+schema_version: 2
+confidence: medium
+compiled_from: [experiment-results-gpu, experiment-results-e13, universal-weight-subspace, paper-fractal-criticality, dynamics-source-structure]
+tags: [cognitive-dynamics, gap2, R(N,T), derivation-target, scaling-law, rate-distortion, E13]
+---
+
+# 缺口 #2 推导目标书: 架构 → 可达率 R(N,T)
+
+> 定位 (2026-10-22): 用户定优先级 C→B→A, 其中 C = 先闭理论缺口 #2 再修假设/放实验。
+> 本文把缺口 #2 从"预测差距账簿里的一条"升级为**可施工的推导目标书**:
+> 明确目标、E13 反演给出的经验约束、候选结构、三个缺失引理、Lean 钩子、可证伪预测。
+
+## 1. 缺口 #2 是什么 (为什么是主线)
+
+`predictive-gap.md` 的三个缺口: ①感知流谱先验测定 ②**架构→可达率 R(N) 封闭映射**
+③优化缺口。E13 先验预测 (GPU, MAE 2.80) 的失败 + 反演, 把 ② 精确改写为:
+
+> **可达率是一个二变量函数 R(N,T), 且被数据 T 门控** —— 谱决定预算 D0 与地板,
+> 但决定不了"有限数据 + 有限优化能多快拿到可压缩结构"。
+
+这就是"从公理算出具体困惑度"的**最后一块理论拼图**: 有了它, 预测公式
+`L̂ = H_floor + waterfill_D(λ, R_ach(N,T))` 才能成立; 缺它, E13 永远只能给界不能给值。
+
+## 2. E13 反演给出的经验约束 (推导必须匹配的形状)
+
+来自 `experiment-results-gpu.md §5` / `experiment-results-e13.md` (gpu_e13.json):
+
+| 量 | 实测 | 含义 |
+|---|---|---|
+| 反演 `R_needed` ∝ lnN 斜率 | **−0.46** | 数据受限区内**更大 N 反而更差**(负相关) |
+| 反演 `R_needed` ∝ lnT 斜率 | **+0.83** | 可达率被**数据 T 主导**(正相关) |
+| `R_cap` ↔ `R_needed` 相关 | **+0.69** | 计数型容量率方向对, 但尺度/门控错 |
+| 公式点预测 MAE | **2.80 nats** | `R_cap` (Efficiency.lean 交互率) 尺度错配 ⟹ 过度注水 |
+| 先验可测量 | H_floor=0.931, D0=3.688, β_data=2.570 | 谱侧 (缺口①) **已闭合**: 下界+预算可先验给 |
+| E9 最小实测 | 2.483 (dim128, T=300K) | 预测缺口 = 1.553 nats = 未闭合 R(N,T) 的实测总和 |
+
+**关键约束**: 在数据受限区 (本批全部配置), `R_ach` 随 T 增长 (∝lnT)、随 N 微降 ——
+所以任何候选 R(N,T) 必须在"数据受限区"重现 `∂R/∂lnT > 0`、`∂R/∂lnN < 0`, 且在
+某 crossover 后转为 `∂R/∂lnN > 0` (参数受限区, 见 §4 L-switch)。
+
+## 3. 候选结构 (推导目标)
+
+**目标定理 (HB 系列之外, 记为 G2)**: 存在闭式可达率
+```
+R_ach(N, T, {λ_i}) = min( R_cap(N), R_data(T) ) · η(N, T)
+```
+使得训练后的最优损失满足 `L(N,T) = H_floor + waterfill_D(λ_norm, R_ach)`。
+
+三项分解:
+- `R_cap(N) = ln(N · seq² / (3 · dim²))` —— **容量率**, Efficiency.lean 交互率已有 (候选)。
+  回答"这么多参数能承载多少有效自由度"。
+- `R_data(T)` —— **数据率**: T 个样本能 populate 多少结构。与 UWS 定理 3.7 的
+  `T^{-1/2}` 估计地板同源 (感知量 ⟹ 吸引子精度)。
+- `η(N,T) ≤ 1` —— **优化效率**: 梯度下降多接近率-失真最优 = 优化缺口 (缺口③)。
+  介于"可达上界"与"真正拿到"之间。
+
+## 4. 三个缺失引理 (施工清单)
+
+- **L-data (数据率)**: `R_data(T) = c(λ) · ln T`? 常数 `c(λ)` 与谱 λ 的"有效可学
+  模式数"挂钩 (∝ 有效秩 / ∫谱)。需从 UWS 的 `T^{-1/2}` 估计误差反推出率单位下的
+  `ln T` 增长。**这是 E13 反演 (+0.83) 要解释的核心**。
+- **L-eta (优化效率)**: `η(N,T)` 多接近 1? E13 旧版测到 dim192/T160K 训练损失已低于
+  xz 地板 (记忆化) ⟹ 优化非绑定项 (η 在某些 regime 可视为 1, 但参数受限区的 η 未测)。
+  这是缺口③, 项目自认"零理论", 是 G2 最不确定的一环。
+- **L-switch (crossover)**: `R_cap(N) = R_data(T)` 解出 `N*(T)` = Chinchilla 式最优配比。
+  E9 已见 crossover 起点 (T=300K dim512 首超 dim256), `N*(T)` 应预测它的位置。
+
+## 5. Lean 钩子 (已有 / 需新增)
+
+| 已有内核 | 用途 |
+|---|---|
+| `Training.lean: scaling_law_strict_anti` | 规模律幂律递减的地板形状 |
+| `Efficiency.lean: interaction_rate` | `R_cap(N)` 容量率候选 |
+| `Fractal.lean` 幂律密度 | 谱尾 ⟹ `D*(R)` 幂律 (L2 推导链) |
+| `HairyBall.lean` (新) | 残差/临界线的拓扑根 (与 η 的"防坍缩"接壤) |
+
+**需新增**:
+- `R_data(T)` 引理 (率单位下的 `ln T` 数据率, 接 UWS `T^{-1/2}`)
+- `η` 的形式化 (或先以"给定 η 界 ⟹ 可达率界"的条件性定理, 与项目"条件性定理"风格一致)
+- `min`/crossover 的存在性与唯一性 (`N*(T)` 良定义)
+
+## 6. 可证伪预测 (一旦 G2 导出即可测)
+
+1. **crossover 位置**: `N*(T)` 预测 E9 双区间切换点; 当前 E9 只见到起点 (T=300K)。
+2. **参数受限区 β-fit 恢复**: 进参数受限区 (语料 >1M 或更大模型) 后, `∂R/∂lnN` 应转正,
+   幂律-over-N 斜率可定义 (当前卡数据受限区故不可测)。
+3. **E13-b/c 联动**: 用 G2 先验预测第二语料族, 留出检验 (幂律形式可迁移、系数需 per-corpus)。
+
+## 7. 诚实边界
+
+- G2 是**推导目标**, 不是已证定理; §3 的 `min(...)·η` 结构是**假设形态**,
+  E13 只支持"数据门控"这一半, `min`/`η` 两项**未被数据直接检验**。
+- 缺口③ (η) 是项目最薄弱处 (无优化理论), 可能长期只能给条件性界而非闭式 η。
+- 与用户 C→B→A 排序一致: G2 未闭前, 放大实验 (A) 只是再次确认数据受限区, 不给新信息。
+
+## 相关文档
+
+- `docs/wiki/predictive-gap.md`（预测差距账簿, 缺口 #2 定位）
+- `docs/wiki/experiment-results-gpu.md` §5 / `experiment-results-e13.md`（E13 反演数据）
+- `docs/wiki/universal-weight-subspace.md`（UWS `T^{-1/2}` 估计地板, L-data 来源）
+- `docs/wiki/topology-hairyball-notes.md`（HB1 拓扑根, 与 η/防坍缩接壤）
+- `LmPrinciple/{Efficiency,Training,Fractal}.lean`（G2 的已有 Lean 内核）

@@ -137,6 +137,8 @@ Lean 已证内核或可测输入, 不是空中楼阁。
 
 ## 相关文档
 
+- `docs/wiki/gap2-rnt-derivation.md`（2026-10-22）—— 缺口 #2 (R(N,T)) 推导目标书: 把"预测差距"升级为可施工的推导清单
+
 - `docs/wiki/experiment-results-e13.md`（E13 执行结果: MAE 0.472 / R(N,T) / 优化缺口 ≈0）
 - `docs/wiki/component-derivations.md`（五组件推导, 论证级）
 - `docs/wiki/experiment-results-e8-e12.md`（E8-E12 实测数据, E13 的对照基线）
