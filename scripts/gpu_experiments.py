@@ -22,10 +22,17 @@ os.makedirs(RESULTS, exist_ok=True)
 
 CORPUS_PATTERNS = ["docs/wiki/*.md", "README.md", "README.zh.md", "AGENTS.md",
                    "CLAUDE.md", "LmPrinciple/*.lean", "paper/*.tex"]
+# 冻结语料快照: 若存在, load_corpus 只读它 (保证 e9 训练与 e13 反演用同一份语料, 消除快照不同步).
+CORPUS_SNAPSHOT = os.path.join(RESULTS, "corpus_snapshot.txt")
 
 
 # ---------------- 语料 ----------------
 def load_corpus(max_chars=None):
+    if os.path.exists(CORPUS_SNAPSHOT):
+        txt = open(CORPUS_SNAPSHOT, encoding="utf-8", errors="ignore").read()
+        if max_chars:
+            txt = txt[:max_chars]
+        return txt
     parts = []
     for pat in CORPUS_PATTERNS:
         for f in sorted(glob.glob(os.path.join(REPO, pat))):
@@ -613,7 +620,8 @@ def run_e13():
         hfloor_bits = float("nan")
         print(f"  xz 不可用: {e}")
     hfloor_nats = hfloor_bits * np.log(2)
-    print(f"  语料 {len(raw)} 字符; xz 压缩 {len(comp)} 字节; H_floor ≈ {hfloor_bits:.3f} bits/char = {hfloor_nats:.3f} nats/char")
+    print(f"  语料 {len(text)} 字符 (xz 输入 {len(raw)}B, 注意 raw=' '.join(text) 约为 2×); "
+          f"xz 压缩 {len(comp)} 字节; H_floor ≈ {hfloor_bits:.3f} bits/char = {hfloor_nats:.3f} nats/char")
     # ② 数据谱: 转移共现矩阵 SVD -> 特征值谱 λ 与谱尾指数 β_data
     M = np.zeros((vocab, vocab))
     for i in range(len(data) - 1):
@@ -756,7 +764,7 @@ def cfg_for(name, args):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("exp", choices=["e9", "e11", "e12", "e8", "e13", "all"])
+    ap.add_argument("exp", choices=["e9", "e11", "e12", "e8", "e13", "freeze", "all"])
     ap.add_argument("--max_chars", type=int, default=None)
     ap.add_argument("--dims", type=str, default=None)
     ap.add_argument("--Ts", type=str, default=None)
@@ -766,6 +774,23 @@ def main():
     ap.add_argument("--budget", type=float, default=None)
     args = ap.parse_args()
     print(f"=== gpu_experiments [{args.exp}] device={DEVICE} ===")
+    if args.exp == "freeze":
+        # 强制从活语料重建冻结快照 (绕过 snapshot 读取), 供后续 e9/e13 共用同一份语料
+        parts = []
+        for pat in CORPUS_PATTERNS:
+            for f in sorted(glob.glob(os.path.join(REPO, pat))):
+                try:
+                    t = open(f, encoding="utf-8", errors="ignore").read()
+                    t = re.sub(r"%.*", "", t)
+                    t = re.sub(r"\s+", " ", t)
+                    parts.append(t)
+                except Exception:
+                    pass
+        txt = " ".join(parts)
+        with open(CORPUS_SNAPSHOT, "w", encoding="utf-8") as fh:
+            fh.write(txt)
+        print(f"[freeze] corpus snapshot -> {CORPUS_SNAPSHOT} ({len(txt)} chars)")
+        return
     if args.exp == "e9" or args.exp == "all":
         run_e9(cfg_for("e9", args))
     if args.exp == "e11" or args.exp == "all":
