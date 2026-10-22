@@ -101,11 +101,18 @@ R_ach(N, T, {λ_i}) = min( R_cap(N), R_data(T) ) · η(N, T)
 | `Efficiency.lean: interaction_rate` | `R_cap(N)` 容量率候选 |
 | `Fractal.lean` 幂律密度 | 谱尾 ⟹ `D*(R)` 幂律 (L2 推导链) |
 | `HairyBall.lean` (新) | 残差/临界线的拓扑根 (与 η 的"防坍缩"接壤) |
+| `WaterFilling.lean` (新, 第一梯队①) | 注水失真 `D(R)`: `waterfill_D_mono_theta`/`distortion_antitone_rate` (率越多失真越低) / 端点; **证明了 `OptEff` 的 `Antitone D` 假设** |
+| `G2.lean` (新, 第一梯队②) | 组装 `R_ach=min(R_cap,R_data)·η`, `L=H_floor+D(R_ach)`; `g2_loss_mono_data`/`_eta`/`_both` (数据↑、折叠↑ 都压低损失) |
 
-**需新增**:
-- `R_data(T)` 引理 (率单位下的 `ln T` 数据率, 接 UWS `T^{-1/2}`)
-- `η` 的形式化 (或先以"给定 η 界 ⟹ 可达率界"的条件性定理, 与项目"条件性定理"风格一致)
-- `min`/crossover 的存在性与唯一性 (`N*(T)` 良定义)
+**第一梯队已完成 (2026-10-22)**:
+- `R_data(T)` 引理 (率单位下的 `ln T` 数据率, 接 UWS `T^{-1/2}`) — 方向内核 `DataRate.lean` 已证 (data_rate_mono)
+- `η` 的形式化 — 方向内核 `OptEff.lean` + 几何重构 `Folding.lean` (η=折叠深度) 已证
+- **注水 `D(R)`** — `WaterFilling.lean` 已证 (keystone)
+- **G2 组装 `min·η` + `H+D` 单调性** — `G2.lean` 已证
+
+**仍需 (第二/三梯队)**:
+- `min`/crossover 的存在性与唯一性 (`N*(T)` 良定义) — L-switch, 需 R_cap/R_data 做成 Lean 函数 + 大语料测 crossover
+- 谱尾 → 规模律指数 (L2 链); 泛化/估计项 (test−train, 真绑定缺口); 完整 HB1 (Poincaré–Hopf)
 
 ## 6. 可证伪预测 (一旦 G2 导出即可测)
 
