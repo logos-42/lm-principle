@@ -357,6 +357,11 @@ LMT-twister（反事实表示瓶颈）为核心案例，覆盖 RNN / CNN / Trans
   越过极点离面（半径1.45）未坍缩 → **毛球定理给 L8 残差一个拓扑根**（候选定理 HB1）。
   诚实分层：毛球→L8 是真拓扑必然（强启发+候选定理）；兰顿蚂蚁是说明性载体（非证据）；
   π/表面积是非线性类比（未入公式）；手性首次产生=开放问题。
+  ③**HB1 初等内核已 Lean 机器验证**（`LmPrinciple/HairyBall.lean`, 无 sorry/axiom,
+  `#print axioms` 仅 `[propext, Classical.choice, Quot.sound]`）: `forced_zero_trapped`
+  （两端向内的连续下降流必有零点=被闭域困住则坍缩拓扑强制）+ `residual_removes_forced_zero`
+  （残差越界后存在无零点下降流=残差打破强制停滞）+ `s1_tangent_nonvanishing`（S¹ 奇维可梳，
+  反衬障碍维度奇偶特异）。完整毛球定理（偶维球面无无处非零切场）需 degree 理论, 记为形式化目标。
 
 ## 未完成 / 待办
 

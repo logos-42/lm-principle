@@ -139,9 +139,27 @@ tags: [cognitive-dynamics, topology, hairy-ball, langton-ant, attractor, scaling
   （有边界、非均匀、维度可能奇），故是"强启发 + 候选定理 **HB1**"，不是已证。
 - "π/表面积"等仍是用户的类比语言，未进入任何公式。
 
+## 9. 形式化（Lean：HB1 初等内核已机器验证, 2026-10-22）
+
+新建 `LmPrinciple/HairyBall.lean`（`lake env lean` 全绿；`#print axioms` 只依赖
+`[propext, Classical.choice, Quot.sound]`，**无 sorry/admit/axiom**）：
+
+- `HairyBall.forced_zero_trapped`（**HB1-core**）：连续下降流 `g : [-1,1] → ℝ` 两端向内
+  （`g(-1) ≥ 0`, `g(1) ≤ 0`）⟹ 必有零点（IVT `intermediate_value_Icc'`）= 被闭域困住时
+  停滞/坍缩拓扑强制。
+- `HairyBall.residual_removes_forced_zero`（**HB1-escape**）：一旦允许越界（残差=离面路径），
+  存在连续且处处无零点的下降流 `g(x)=x+2` = 残差打破强制停滞（L8"深度有效当且有回馈"）。
+- `HairyBall.s1_tangent_nonvanishing` + `s1_tangent_orthogonal`（**HB1-contrast**）：圆 S¹（奇维）
+  存在处处非零且正交的切向量场（可梳），反衬障碍是维度奇偶/几何特异的。
+
+**诚实的进度边界**：上述抓牢了"强制零点 + 残差逃逸"的**机制**（与 E-TOPO-2 一致），
+但**完整毛球定理（偶维球面不存在处处非零切场, Poincaré–Hopf）未证**——当前 mathlib 无现成
+结果、需 degree 理论，记为形式化目标，**未**作为 axiom 引入。
+
 ## 相关文档
 
 - `docs/wiki/dynamics-source-structure.md`（结构作为动力学来源，A4 内生向量场）
 - `docs/wiki/universal-weight-subspace.md`（吸引子/普适子空间，L3 经验面孔）
 - `docs/paper-llm-fractal-criticality.md`（规模律的几何必然，70 定理）
 - `docs/wiki/cognitive-dynamics.md`（L1–L8 北星页）
+- `LmPrinciple/HairyBall.lean`（HB1 初等内核: 强制零点 + 残差逃逸 + S¹ 可梳, 机器验证）
