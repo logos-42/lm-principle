@@ -853,8 +853,22 @@ def run_eta(cfg):
     else:
         verdict = "混合: 优化与泛化都贡献缺口"
     print(f"  [ETA] 判定: {verdict}")
+    # 幂指数标定: gen_gap ~ T^{slope} (log-log, 每 dim, 只取 gen_gap>1e-3 的点); 报告 alpha=-slope
+    gen_exp = {}
+    for dim in cfg["dims"]:
+        Ts_d = sorted({r["T"] for r in rows if r["dim"] == dim})
+        ggs = [float(np.mean([r["gen_gap"] for r in rows if r["dim"] == dim and r["T"] == T])) for T in Ts_d]
+        xs = [np.log(t) for t, g in zip(Ts_d, ggs) if g > 1e-3]
+        ys = [np.log(g) for g in ggs if g > 1e-3]
+        if len(xs) >= 3:
+            slope, _ = np.polyfit(xs, ys, 1)
+            gen_exp[dim] = {"slope": float(slope), "alpha": float(-slope), "n_points": len(xs),
+                            "T_range_K": [Ts_d[0] // 1000, Ts_d[-1] // 1000]}
+            print(f"  [ETA] dim{dim}: gen_gap ~ T^{slope:+.3f}  (幂指数 α={-slope:.3f}, {len(xs)} 点, "
+                  f"T∈[{Ts_d[0]//1000},{Ts_d[-1]//1000}]K) —— α≈0.5=UWS T^-1/2, α≈1=更陡")
     R = {"H_floor": hfloor_nats, "D0": D0, "mean_eta": mean_eta,
          "mean_fold_resid": mean_fold, "mean_gen_gap": mean_gen,
+         "gen_gap_exponent_per_dim": gen_exp,
          "verdict": verdict, "rows": rows}
     with open(os.path.join(RESULTS, "gpu_eta.json"), "w") as f:
         json.dump(R, f, indent=2)
