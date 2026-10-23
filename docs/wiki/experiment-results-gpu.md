@@ -2,7 +2,7 @@
 title: 实验结果汇总 GPU 批次——认知动力学 A100 放大验证
 source: session
 created: 2026-10-21
-last_confirmed: 2026-10-21
+last_confirmed: 2026-10-23
 audience: internal
 stage: current
 schema_version: 2
@@ -151,7 +151,7 @@ GPU 放大批次 **复现并多处加强了 CPU 冒烟版的所有定性结论**
 **进行中**: gen_gap ~ T 的幂指数标定（5 T 点 20K–320K × dims 512,128 × 3 seeds, 判定 α≈0.5=UWS
 T^{-1/2} vs α≈1=更陡）——2026-10-23 13:32 CST 启动, 预计 ~5h 跑完, 结果覆盖写 `gpu_eta.json`。
 
-## 7. 诚实边界
+## 8. 诚实边界
 
 - 全部为单语料族（仓库 markdown/lean/tex）、3 seeds、弱训练（400–2000 步）的**验证性**实验, 非大规模基准。
 - E9 卡在数据受限区 → 幂律-over-N 与 β-fit 不可定义；进入参数受限区需更大语料（>1M 字符）或更大模型。
@@ -159,3 +159,5 @@ T^{-1/2} vs α≈1=更陡）——2026-10-23 13:32 CST 启动, 预计 ~5h 跑完
 - E12 的 2.8× 是下界（ES 维度诅咒未充分放大）；ES/爬山超参已调优, 但理论上逆模式优势应随维度单调放大。
 - E13 的 H_floor 与 E9 最小 loss 来自不同语料快照（docs/wiki 在两次实验间增长）, 缺口为近似对照, 量级结论稳健。
 - 数据/日志：`experiments/results/gpu_{e8,e9,e11,e12,e13}.json` + 服务器 `/work/liuyuanjie/cogdyn/{e8..e13}.log`。
+- **η 探针收敛版（§7）额外边界**: 单语料族 ~353K 字符 / 3 seeds / 固定 8000 步（非最优 checkpoint 协议）;
+  η>1 与 fold_resid<0 = 记忆化（折到底还往下）; T=353K 即语料天花板; 幂指数标定实验进行中, 结果未定。
